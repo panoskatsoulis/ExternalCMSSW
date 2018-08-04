@@ -288,13 +288,6 @@ MuonStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   muonsSize++;
   // }
 
-  // Validation Cuts
-  for (auto imuA : *bmtfDataMuons )
-    if (imuA.hwPt() < 25) return;
-  //-------- this is an OR -------------------
-  for (auto imuB : *bmtfEmuMuons )
-    if (imuB.hwPt() < 25) return;
-
   //MAIN CODE
   for (auto imuA : *bmtfDataMuons ) {
       //data 1D histograms
