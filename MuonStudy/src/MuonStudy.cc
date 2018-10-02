@@ -57,7 +57,7 @@
 #include "TH2I.h"
 #include "TGraph.h"
 #include "TCanvas.h"
-#include "MyModule/MuonStudy/interface/analysisTools.h"
+#include "MyExtModules/MuonStudy/interface/analysisTools.h"
 
 // If the analyzer does not use TFileService, please remove
 // the template argument to the base class so the class inherits
