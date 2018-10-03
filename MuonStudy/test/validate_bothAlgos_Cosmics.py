@@ -138,7 +138,7 @@ process.fakeBmtfParams.mask_ettf_st3 = cms.vstring(no, no, no, no, no, no, no)
 
 
 # load Validator
-process.load('MyExtModules.MuonStudy.validationNew_cfi')
+process.load('ExternalCMSSW.MuonStudy.validationNew_cfi')
 process.validation.muonsData = cms.InputTag("bmtfDigis:"+legacyTag)
 
 process.validation2 = process.validation.clone(
