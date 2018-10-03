@@ -9,13 +9,17 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+#Setup FWK for multithreaded - The Validator is not thread-safe
+#process.options = cms.untracked.PSet()
+#process.options.numberOfThreads=cms.untracked.uint32(4)
+#process.options.numberOfStreams=cms.untracked.uint32(0)
 
 #########  INPUT FILES  #####################
 import glob, os
 
-events = 20000
-run = "323391"
-dataset = "/ExpressPhysics/Run2018D-Express-v1/FEVT"
+events = 3000
+run = "323811"
+dataset = "/ExpressCosmics/Run2018D-Express-v1/FEVT"
 gTag = "101X_dataRun2_HLT_v7"
 legacyTag = "BMTF2"
 kalmanTag = "BMTF"
@@ -134,16 +138,16 @@ process.fakeBmtfParams.mask_ettf_st3 = cms.vstring(no, no, no, no, no, no, no)
 
 
 # load Validator
-process.load('MyExtModules.MuonStudy.CfiFile_cfi')
-process.muonStudy.muonsData = cms.InputTag("bmtfDigis:"+legacyTag)
+process.load('MyExtModules.MuonStudy.validationNew_cfi')
+process.validation.muonsData = cms.InputTag("bmtfDigis:"+legacyTag)
 
-process.muonStudy2 = process.muonStudy.clone(
+process.validation2 = process.validation.clone(
     system = cms.string("KMTF"),
     muonsData = cms.InputTag("bmtfDigis:"+kalmanTag),
     muonsEmu = cms.InputTag("simKBmtfDigis:BMTF")
     )
-#process.muonStudy.phiHits = cms.InputTag("twinMuxStage2Digis:PhIn")#info to be used only for print out
-#process.muonStudy.etaHits = cms.InputTag("twinMuxStage2Digis:ThIn")#info to be used only for print out
+#process.validation.phiHits = cms.InputTag("twinMuxStage2Digis:PhIn")#info to be used only for print out
+#process.validation.etaHits = cms.InputTag("twinMuxStage2Digis:ThIn")#info to be used only for print out
 
 # Path and EndPath definitions
 process.path = cms.Path(
@@ -153,8 +157,8 @@ process.path = cms.Path(
     +process.simBmtfDigis          #emulation
     +process.simKBmtfStubs
     +process.simKBmtfDigis
-    +process.muonStudy             #BMTF validation
-    +process.muonStudy2            #KMTF validation
+    +process.validation            #BMTF validation
+    +process.validation2           #KMTF validation
 )
 
 # Output definition
