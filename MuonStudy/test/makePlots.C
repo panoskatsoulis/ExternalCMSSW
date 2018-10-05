@@ -48,7 +48,7 @@ void make(TFile* file, TString fileDir = "BMTF", bool makePng = false, TString r
   std::cout << "pt ok" << std::endl;
   TCanvas *canv3 = canvas_data_mc(pt2Data, pt2Emu, "Pt_{2}", true, 0, 300, 0, 1000, "", run);
   std::cout << "pt2 ok" << std::endl;
-  TCanvas *canv4 = canvas_data_mc(wheelData, wheelEmu, "Wheel", true, -3.5, 3.5, 0, 1000, "", run);
+  TCanvas *canv4 = canvas_data_mc(wheelData, wheelEmu, "Wheel", true, -4.5, 4.5, 0, 1000, "", run);
   std::cout << "wheel ok" << std::endl;
   TCanvas *canv5 = canvas_data_mc(dxyData, dxyEmu, "dxy", true, 0, 4, 0, 1000, "", run);
   std::cout << "dxy ok" << std::endl;
