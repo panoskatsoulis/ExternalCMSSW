@@ -288,7 +288,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TA2Data.Fill(imuA.trackAddress().at(3));
       TA3Data.Fill(imuA.trackAddress().at(4));
       TA4Data.Fill(imuA.trackAddress().at(5));
-      wheelData.Fill(returnWheel_2sComp(imuA.trackAddress().at(0),
+      wheelData.Fill(returnWheel_Janos(imuA.trackAddress().at(0),
 					imuA.trackAddress().at(1)));
   }
 
@@ -306,8 +306,8 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TA4Emu.Fill(imuB.trackAddress().at(5));
       //wheelEmu.Fill(returnWheel_2sComp(imuB.trackAddress().at(0),
       //imuB.trackAddress().at(1)));
-      wheelEmu.Fill(returnWheel_Michalis(imuB.trackAddress().at(0),
-					 imuB.trackAddress().at(1)));
+      wheelEmu.Fill(returnWheel_Janos(imuB.trackAddress().at(0),
+				      imuB.trackAddress().at(1)));
   }
 
 
@@ -352,8 +352,8 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	ptMismatches++;
 	mismatch = true;
       }
-      if (returnWheel_2sComp(imuA->trackAddress().at(0), imuA->trackAddress().at(1))
-	  != returnWheel_Michalis(imuB->trackAddress().at(0), imuB->trackAddress().at(1)) ) {
+      if (returnWheel_Janos(imuA->trackAddress().at(0), imuA->trackAddress().at(1))
+	  != returnWheel_Janos(imuB->trackAddress().at(0), imuB->trackAddress().at(1)) ) {
 	wheelMismatches++;
 	mismatch = true;
       }

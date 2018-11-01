@@ -13,17 +13,17 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #########  INPUT FILES  #####################
 import glob, os
 
-events = 200000
+events = 20000
 
 dataset = "/ExpressPhysics/Run2018D-Express-v1/FEVT"
 gTag = "101X_dataRun2_HLT_v7"
-legacyTag = "BMTF2"
-kalmanTag = "BMTF"
-lumiBegin = ""
-lumiEnd = ""
+legacyTag = "BMTF"
+kalmanTag = "BMTF2"
+lumiBegin = "20"
+lumiEnd = "60"
 
-query_type = "multiple" # single/multiple
-run = 323391#if single query
+query_type = "single" # single/multiple
+run = 325099#if single query
 run1 = 323390
 run2 = 323399
 
