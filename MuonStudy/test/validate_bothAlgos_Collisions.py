@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('test')
+process = cms.Process('validation')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,23 +9,64 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+#########  VarParsing  ######################
+import FWCore.ParameterSet.VarParsing as VarParsing
+args = VarParsing.VarParsing("analysis")
+args.register("dataset", "/ExpressPhysics/Run2018D-Express-v1/FEVT",
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.string,
+              "Dataset for the DAS query.")
+args.register("gTag", "101X_dataRun2_HLT_v7",
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.string,
+              "Global Tag to be used.")
+args.register("legacyTag", "BMTF",
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.string,
+              "Collection to used by the Validator for the Legacy Algo. ('BMTF': Triggering | 'BMTF2': Secondary)")
+args.register("kalmanTag", "BMTF2",
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.string,
+              "Collection to used by the Validator for the Kalman Algo. ('BMTF': Triggering | 'BMTF2': Secondary)")
+args.register("queryType", "single",
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.string,
+              "DAS query type. ('single': one run | 'multiple': more runs)")
+args.register("events", 20000,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.int,
+              "Number of events to run over.")
+args.register("run", 325113,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.int,
+              "Run to process (for single queries).")
+args.register("run1", 323390,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.int,
+              "First run to process (for multiple queries).")
+args.register("run2", 323399,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.int,
+              "Last run to process (for multiple queries).")
+args.parseArguments()
+
 
 #########  INPUT FILES  #####################
 import glob, os
 
-events = 20000
+events = args.events
 
-dataset = "/ExpressPhysics/Run2018D-Express-v1/FEVT"
-gTag = "101X_dataRun2_HLT_v7"
-legacyTag = "BMTF"
-kalmanTag = "BMTF2"
-lumiBegin = "20"
-lumiEnd = "60"
+dataset = args.dataset
+gTag = args.gTag
+legacyTag = args.legacyTag
+kalmanTag = args.kalmanTag
+lumiBegin = "20" ### NOT FUNCTIONAL
+lumiEnd = "60" ### NOT FUNCTIONAL
 
-query_type = "single" # single/multiple
-run = 325099#if single query
-run1 = 323390
-run2 = 323399
+query_type = args.queryType # single/multiple
+run = args.run # if single query
+run1 = args.run1
+run2 = args.run2
 
 das_queries = []
 files = cms.untracked.vstring()
