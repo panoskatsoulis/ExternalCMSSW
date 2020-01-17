@@ -1,8 +1,12 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="EventFilter/L1TRawToDigi"/>
-<use name="DataFormats/L1DTTrackFinder"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="PhysicsTools/UtilAlgos"/>
-<flags EDM_PLUGIN="1"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="EventFilter/L1TRawToDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="L1Trigger/L1TMuon"/>
+<use name="roofitcore"/>
+<export>
+  <lib name="1"/>
+</export>
