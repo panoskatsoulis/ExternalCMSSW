@@ -48,6 +48,14 @@ args.register("run2", 323399,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.int,
               "Last run to process (for multiple queries).")
+args.register("isMC", False,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.bool,
+              "If true, the given dataset is a MC.")
+args.register("limitQuery", 0,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.int,
+              "Use this limit for the DAS query. (only single queries)")
 args.parseArguments()
 
 
@@ -67,17 +75,29 @@ query_type = args.queryType # single/multiple
 run = args.run # if single query
 run1 = args.run1
 run2 = args.run2
+isMC = args.isMC
+limitQuery = args.limitQuery
 
 das_queries = []
 files = cms.untracked.vstring()
 
-if query_type == "single" : #### SINGLE DAS query
-    das_query = 'dasgoclient --query="file dataset='+dataset+' run='+str(run)+'"'
-    print ("Querying files for the Run " + str(run) + '...')
+if query_type == "single" : #### Single DAS query
+    das_query = 'dasgoclient --query="file dataset='+dataset+'"'
+    if not isMC:
+        das_query += ' run='+str(run)+'"'
+    if limitQuery != 0:
+        das_query += ' -limit '+str(limitQuery)
+    print("Querying files for the Run " + str(run) + '...')
     query_out = os.popen(das_query)
     files += cms.untracked.vstring('root://xrootd-cms.infn.it/'+_file.strip() for _file in query_out)
     das_queries.append(das_query)
 elif query_type == "multiple" : #### Multiple DAS queries to form the files vector
+    if isMC:
+        print("Multiple DAS query is unsupported for MC samples.")
+        quit(1)
+    if limitQuery != 0:
+        print("Multiple DAS query does not support query limits.")
+        quit(1)
     for run_i in range(run1, run2+1):
         das_query = 'dasgoclient --query="file dataset='+dataset+' run='+str(run_i)+'"'
         print ("Querying files for the Run " + str(run_i) + '...')
@@ -137,13 +157,6 @@ process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')#BMTF
 process.load('L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff')
 process.simBmtfDigis.DTDigi_Source = cms.InputTag("bmtfDigis")
 process.simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("bmtfDigis")
-process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TMuonBarrelParamsRcd'),
-               data = cms.vstring('L1TMuonBarrelParams'))
-                   ),
-   verbose = cms.untracked.bool(True)
-)
 
 # Configure Emulator's masks
 masked = '111111111111'
@@ -168,12 +181,27 @@ process.validation2 = process.validation.clone(
 #process.muonStudy.phiHits = cms.InputTag("twinMuxStage2Digis:PhIn")#info to be used only for print out
 #process.muonStudy.etaHits = cms.InputTag("twinMuxStage2Digis:ThIn")#info to be used only for print out
 
+# Setup the Rcd Getter
+process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
+   toGet = cms.VPSet(
+      cms.PSet(record = cms.string('L1TMuonBarrelParamsRcd'),
+               data = cms.vstring('L1TMuonBarrelParams'))
+                   ),
+   verbose = cms.untracked.bool(True)
+)
+
+
+# Setup the L1TMuonBarrelParams Viewer
+process.l1brl = cms.EDAnalyzer("L1TMuonBarrelParamsViewer")
 
 # Path and EndPath definitions
 process.path = cms.Path(
     process.bmtfDigis              #unpack BMTF
     #+process.twinMuxStage2Digis   #unpack TM
+    #+process.bmbtfParamsSource     #register an empty ES
+    #process.fakeBmtfParams        #generate static params in the ES
     +process.esProd                #event setup creation
+    #+process.l1brl                 #MuonBarrelParams Viewer
     +process.simBmtfDigis          #emulation
     +process.simKBmtfStubs
     +process.simKBmtfDigis
