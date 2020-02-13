@@ -6,5 +6,6 @@ validation = cms.EDAnalyzer(
     phiHits = cms.InputTag("bmtfDigis"),
     etaHits = cms.InputTag("bmtfDigis"),
     muonsData = cms.InputTag("bmtfDigis:BMTF"),
-    muonsEmu = cms.InputTag("simBmtfDigis:BMTF")
+    muonsEmu = cms.InputTag("simBmtfDigis:BMTF"),
+    muonsReco = cms.InputTag("muons")
 )

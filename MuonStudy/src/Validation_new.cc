@@ -40,6 +40,7 @@
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
@@ -92,6 +93,7 @@ private:
   edm::EDGetTokenT<L1MuDTChambThContainer> etaToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfData;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfEmu;
+  edm::EDGetTokenT< std::vector<reco::Muon> > token_recoMu;
   
   edm::Service<TFileService> fs;
   std::ofstream fout;
@@ -169,6 +171,7 @@ Validation::Validation(const edm::ParameterSet& iConfig)
   etaToken = consumes< L1MuDTChambThContainer >(iConfig.getParameter<edm::InputTag>("etaHits"));
   token_bmtfData = consumes< l1t::RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("muonsData"));
   token_bmtfEmu = consumes< l1t::RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("muonsEmu"));
+  token_recoMu = consumes< std::vector<reco::Muon> >(iConfig.getParameter<edm::InputTag>("muonsReco"));
 
   fout.open(system+"_mismatchesFile");
   usesResource("TFileService");
@@ -267,6 +270,9 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfEmuMuons;
   iEvent.getByToken(token_bmtfEmu,bmtfEmuMuons);
 
+  //Reco Muons Collections
+  edm::Handle< vector<reco::Muon> > recoMuons;
+  iEvent.getByToken(token_recoMu,recoMuons);
 
   //Count events
   events++;
@@ -386,6 +392,14 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (mismatch)
     printEvent(phiInput.product(), etaInput.product(), bmtfDataMuons.product(), bmtfEmuMuons.product(), "GENERAL");
 
+
+  //Calculate Efficiency
+  const std::vector<reco::Muon> *offMuons = recoMuons.product(); // IMPORTANT - you can ONLY read this vector!
+  std::vector<reco::Muon> tagMuons, probeMuons;
+
+  //test
+  for (auto mu: *offMuons)
+    std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << std::endl;
 }//analyze method
 
 
@@ -499,6 +513,7 @@ Validation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("etaHits", edm::InputTag("bmtfDigis"));
   desc.add<edm::InputTag>("muonsData", edm::InputTag("bmtfDigis:BMTF"));
   desc.add<edm::InputTag>("muonsEmu", edm::InputTag("simBmtfDigis:BMTF"));
+  desc.add<edm::InputTag>("muonsReco", edm::InputTag("muons"));
   desc.add<std::string>("system", "BMTF");
 
   descriptions.add("muonStudy",desc);
