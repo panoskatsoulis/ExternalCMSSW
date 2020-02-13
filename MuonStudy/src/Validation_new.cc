@@ -398,8 +398,8 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<reco::Muon> tagMuons, probeMuons;
 
   //test
-  for (auto mu: *offMuons)
-    std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << std::endl;
+  // for (auto mu: *offMuons)
+  //   std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << std::endl;
 }//analyze method
 
 
