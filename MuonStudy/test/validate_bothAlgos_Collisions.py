@@ -82,9 +82,11 @@ das_queries = []
 files = cms.untracked.vstring()
 
 if query_type == "single" : #### Single DAS query
-    das_query = 'dasgoclient --query="file dataset='+dataset+'"'
+    das_query = 'dasgoclient --query="file dataset='+dataset
     if not isMC:
         das_query += ' run='+str(run)+'"'
+    else:
+        das_query += '"'
     if limitQuery != 0:
         das_query += ' -limit '+str(limitQuery)
     print("Querying files for the Run " + str(run) + '...')
