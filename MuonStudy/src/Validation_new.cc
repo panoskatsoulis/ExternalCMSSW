@@ -100,6 +100,7 @@ private:
   TFile *file;
 
   std::string system;
+  bool doEfficiency;
 
   TH2F phisHist;//All Etas 2D
   TH2F etasHist;
@@ -167,6 +168,7 @@ Validation::Validation(const edm::ParameterSet& iConfig)
   // binToken_original = consumes<FEDRawDataCollection>(edm::InputTag(labelFEDData_1));  
 
   system = iConfig.getParameter<std::string>("system");
+  doEfficiency = iConfig.getParameter<bool>("doEfficiency");
   phiToken = consumes< L1MuDTChambPhContainer >(iConfig.getParameter<edm::InputTag>("phiHits"));
   etaToken = consumes< L1MuDTChambThContainer >(iConfig.getParameter<edm::InputTag>("etaHits"));
   token_bmtfData = consumes< l1t::RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("muonsData"));
@@ -272,7 +274,8 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Reco Muons Collections
   edm::Handle< vector<reco::Muon> > recoMuons;
-  iEvent.getByToken(token_recoMu,recoMuons);
+  if (doEfficiency)
+    iEvent.getByToken(token_recoMu,recoMuons);
 
   //Count events
   events++;
@@ -394,12 +397,15 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Calculate Efficiency
-  const std::vector<reco::Muon> *offMuons = recoMuons.product(); // IMPORTANT - you can ONLY read this vector!
-  std::vector<reco::Muon> tagMuons, probeMuons;
+  if (doEfficiency) {
+    const std::vector<reco::Muon> *offMuons = recoMuons.product(); // IMPORTANT - you can ONLY read this vector!
+    std::vector<reco::Muon> tagMuons, probeMuons;
 
-  //test
-  // for (auto mu: *offMuons)
-  //   std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << std::endl;
+    //test
+    for (auto mu: *offMuons)
+      std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << mu.passed( mu.PFIsoTight ) << std::endl;
+  }//doEfficiency
+
 }//analyze method
 
 
@@ -502,21 +508,6 @@ Validation::endJob()
   //fout << "Muons not matched: " << muonsMissing << "\tpercent: " << 100*muonsMissing/events << "%" << std::endl;
 
   fout.close();
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-Validation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("phiHits", edm::InputTag("bmtfDigis"));
-  desc.add<edm::InputTag>("etaHits", edm::InputTag("bmtfDigis"));
-  desc.add<edm::InputTag>("muonsData", edm::InputTag("bmtfDigis:BMTF"));
-  desc.add<edm::InputTag>("muonsEmu", edm::InputTag("simBmtfDigis:BMTF"));
-  desc.add<edm::InputTag>("muonsReco", edm::InputTag("muons"));
-  desc.add<std::string>("system", "BMTF");
-
-  descriptions.add("muonStudy",desc);
 }
 
 // ------------ method Calculates anythng else the user needs in parallel with the validation procedure  ------------
@@ -737,6 +728,23 @@ Validation::returnWheel_Michalis(const int& side, const int& wheel) {
 //    std::cout << "HW_SignValid=\t" << muon_A.hwSignValid() << "\t| " << "SW_SignValid=\t" << muon_B->hwSignValid() << std::endl;
 
  */
+
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+Validation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("phiHits", edm::InputTag("bmtfDigis"));
+  desc.add<edm::InputTag>("etaHits", edm::InputTag("bmtfDigis"));
+  desc.add<edm::InputTag>("muonsData", edm::InputTag("bmtfDigis:BMTF"));
+  desc.add<edm::InputTag>("muonsEmu", edm::InputTag("simBmtfDigis:BMTF"));
+  desc.add<edm::InputTag>("muonsReco", edm::InputTag("muons"));
+  desc.add<std::string>("system", "BMTF");
+  desc.add<bool>("doEfficiency", false);
+
+  descriptions.add("muonStudy",desc);
+}
 
 
 //define this as a plug-in
