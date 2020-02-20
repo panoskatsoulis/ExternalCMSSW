@@ -140,6 +140,7 @@ process.fakeBmtfParams.mask_ettf_st3 = cms.vstring(no, no, no, no, no, no, no)
 # load Validator
 process.load('ExternalCMSSW.MuonStudy.validationNew_cfi')
 process.validation.muonsData = cms.InputTag("bmtfDigis:"+legacyTag)
+process.validation.doEfficiency = cms.bool(False)
 
 process.validation2 = process.validation.clone(
     system = cms.string("KMTF"),
