@@ -82,14 +82,17 @@ das_queries = []
 files = cms.untracked.vstring()
 
 if query_type == "single" : #### Single DAS query
-    das_query = 'dasgoclient --query="file dataset='+dataset+'"'
+    das_query = 'dasgoclient --query="file site=T2_GR_Ioannina dataset='+dataset
     if not isMC:
         das_query += ' run='+str(run)+'"'
+    else:
+        das_query += '"'
     if limitQuery != 0:
         das_query += ' -limit '+str(limitQuery)
     print("Querying files for the Run " + str(run) + '...')
     query_out = os.popen(das_query)
     files += cms.untracked.vstring('root://xrootd-cms.infn.it/'+_file.strip() for _file in query_out)
+#    files += cms.untracked.vstring('root://grid02.physics.uoi.gr/'+_file.strip() for _file in query_out)
     das_queries.append(das_query)
 elif query_type == "multiple" : #### Multiple DAS queries to form the files vector
     if isMC:
@@ -203,10 +206,10 @@ process.path = cms.Path(
     +process.esProd                #event setup creation
     #+process.l1brl                 #MuonBarrelParams Viewer
     +process.simBmtfDigis          #emulation
-    +process.simKBmtfStubs
-    +process.simKBmtfDigis
+    #+process.simKBmtfStubs
+    #+process.simKBmtfDigis
     +process.validation            #BMTF validation
-    +process.validation2           #KMTF validation
+    #+process.validation2           #KMTF validation
 )
 
 # Output definition

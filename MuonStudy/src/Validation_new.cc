@@ -5,10 +5,10 @@
 // 
 /**\class MuonStudy MuonStudy.cc Personal/MuonStudy/plugins/MuonStudy.cc
 
-   Description: [one line class summary]
+Description: [one line class summary]
 
-   Implementation:
-   [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  Panagiotis Katsoulis
@@ -50,15 +50,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-//#include "TH1.h"
 #include "TH1F.h"
 #include "TH1I.h"
-//#include "TH2.h"
 #include "TH2F.h"
 #include "TH2I.h"
 #include "TGraph.h"
 #include "TCanvas.h"
-#include "ExternalCMSSW/MuonStudy/interface/analysisTools.h"
+#include "ExternalCMSSW/MuonStudy/interface/analysisTools.h"//ie ---
+#include "TLorentzVector.h"
+#include <algorithm>  // vector.sort
 
 // If the analyzer does not use TFileService, please remove
 // the template argument to the base class so the class inherits
@@ -67,85 +67,124 @@
 // This will improve performance in multithreaded jobs.
 
 class Validation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
-public:
-  explicit Validation(const edm::ParameterSet&);
-  ~Validation();
+  public:
+    explicit Validation(const edm::ParameterSet&);
+    ~Validation();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
-private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  void otherCalculation(const edm::Handle<L1MuDTChambPhContainer>, TH2I&);
-  void printEvent(const L1MuDTChambPhContainer*, const L1MuDTChambThContainer*, 
-		  const l1t::RegionalMuonCandBxCollection*, const l1t::RegionalMuonCandBxCollection*, 
-		  const std::string);
-  int returnWheel_2sComp(const int&, const int&);
-  int returnWheel_Janos(const int&, const int&);
-  int returnWheel_Michalis(const int&, const int&);
+  private:
+    virtual void beginJob() override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
+    void otherCalculation(const edm::Handle<L1MuDTChambPhContainer>, TH2I&);
+    void printEvent(const L1MuDTChambPhContainer*, const L1MuDTChambThContainer*, 
+        const l1t::RegionalMuonCandBxCollection*, const l1t::RegionalMuonCandBxCollection*, 
+        const std::string);
+    int returnWheel_2sComp(const int&, const int&);
+    int returnWheel_Janos(const int&, const int&);
+    int returnWheel_Michalis(const int&, const int&);
 
-  // edm::EDGetTokenT<FEDRawDataCollection> binToken_original;
-  // edm::EDGetTokenT<FEDRawDataCollection> binToken_replica;
+    // edm::EDGetTokenT<FEDRawDataCollection> binToken_original;
+    // edm::EDGetTokenT<FEDRawDataCollection> binToken_replica;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> phiToken;
-  edm::EDGetTokenT<L1MuDTChambThContainer> etaToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfData;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfEmu;
-  edm::EDGetTokenT< std::vector<reco::Muon> > token_recoMu;
-  
-  edm::Service<TFileService> fs;
-  std::ofstream fout;
-  TFile *file;
+    edm::EDGetTokenT<L1MuDTChambPhContainer> phiToken;
+    edm::EDGetTokenT<L1MuDTChambThContainer> etaToken;
+    edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfData;
+    edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> token_bmtfEmu;
+    edm::EDGetTokenT< std::vector<reco::Muon> > token_recoMu;
 
-  std::string system;
+    edm::Service<TFileService> fs;
+    std::ofstream fout;
+    TFile *file;
 
-  TH2F phisHist;//All Etas 2D
-  TH2F etasHist;
-  TH2F ptHist;
-  TH2F pt2Hist;
-  TH2I sizeHist;
-  TH2I bxHist;//not yet implemented
-  TH1F phisData, phisEmu;
-  TH1F etasData, etasEmu;
-  TH1F ptData, ptEmu;
-  TH1F pt2Data, pt2Emu;
-  TH1I dxyData, dxyEmu;
-  TH1I TA1Data, TA1Emu;
-  TH1I TA2Data, TA2Emu;
-  TH1I TA3Data, TA3Emu;
-  TH1I TA4Data, TA4Emu;
-  TH1F wheelData, wheelEmu;
-  TH1I fineBitData, fineBitEmu;
-  TH1F phisRatio;//ratios
-  TH1F etasRatio;
-  TH1F ptRatio;
-  TH1F pt2Ratio;  
-  int phiBins, etaBins, ptBins, dxyBins, sizeBins, bxBins, fBBins;
-  // ----------member data ---------------------------
-  // float Dev;
-  // float dphis, detas, dmuons;
-  // int phiSize, etaSize, muonsSize;
-  int notMatched;
-  int filledSame;
-  int filledBySearch;
-  int mismatchedContainers;
-  int ptMismatches;
-  int pt2Mismatches;
-  int dxyMismatches;
-  int phiMismatches;
-  int etaMismatches;
-  int TA1Mismatches;
-  int TA2Mismatches;
-  int TA3Mismatches;
-  int TA4Mismatches;
-  int wheelMismatches;
-  int sizeMismatches;
-  int events;
-  int emuMuonSize;
-  int dataMuonSize;
-  //other calculations
+    std::string system;
+
+    TH2F phisHist;//All Etas 2D
+    TH2F etasHist;
+    TH2F ptHist;
+    TH2F pt2Hist;
+    TH2I sizeHist;
+    TH2I bxHist;//not yet implemented
+    TH1F phisData, phisEmu;
+    TH1F etasData, etasEmu;
+    TH1F ptData, ptEmu;
+    TH1F pt2Data, pt2Emu;
+    TH1I dxyData, dxyEmu;
+    TH1I TA1Data, TA1Emu;
+    TH1I TA2Data, TA2Emu;
+    TH1I TA3Data, TA3Emu;
+    TH1I TA4Data, TA4Emu;
+    TH1F wheelData, wheelEmu;
+    TH1I fineBitData, fineBitEmu;
+    TH1F phisRatio;//ratios
+    TH1F etasRatio;
+    TH1F ptRatio;
+    TH1F pt2Ratio;  
+
+    TH1F eff_all;
+    TH1F eff_pass;
+
+  TH1F phi_online_0;
+  TH1F phi_online_1;
+  TH1F phi_online_2;
+  TH1F phi_online_3;
+  TH1F eta_online_0;
+  TH1F eta_online_1;
+  TH1F eta_online_2;
+  TH1F eta_online_3;
+
+  TH1F pt_online_0;
+
+  TH1F phi_offline_0;
+  TH1F phi_offline_1;
+  TH1F phi_offline_2;
+  TH1F phi_offline_3;
+  TH1F eta_offline_0;
+  TH1F eta_offline_1;
+  TH1F eta_offline_2;
+  TH1F eta_offline_3;
+
+  TH1I chambers_hits;
+  TH1I probes_gt2;
+  TH1F dr_tag;
+  TH1F dr_probe;
+  TH1F dimuon;
+
+  TH1F rej_phi;
+  TH1F rej_eta;
+  TH1F rej_DR;
+
+    int phiBins, etaBins, ptBins, dxyBins, sizeBins, bxBins, fBBins;
+    // ----------member data ---------------------------
+    // float Dev;
+    // float dphis, detas, dmuons;
+    // int phiSize, etaSize, muonsSize;
+    int notMatched;
+    int filledSame;
+    int filledBySearch;
+    int mismatchedContainers;
+    int ptMismatches;
+    int pt2Mismatches;
+    int dxyMismatches;
+    int phiMismatches;
+    int etaMismatches;
+    int TA1Mismatches;
+    int TA2Mismatches;
+    int TA3Mismatches;
+    int TA4Mismatches;
+    int wheelMismatches;
+    int sizeMismatches;
+    int events;
+
+    int eff_events_2pr;
+    int eff_events_pass;
+    int eff_events_final;
+
+    int emuMuonSize;
+    int dataMuonSize;
+    //other calculations
 };
 
 //
@@ -162,7 +201,7 @@ private:
 Validation::Validation(const edm::ParameterSet& iConfig)
 
 {
-  
+
   // std::string labelFEDData_1("rawDataCollector");
   // binToken_original = consumes<FEDRawDataCollection>(edm::InputTag(labelFEDData_1));  
 
@@ -179,7 +218,7 @@ Validation::Validation(const edm::ParameterSet& iConfig)
 
   //Binning
   phiBins = 100;
-  etaBins = 280; //etaBins = 56;
+  etaBins = 56; //etaBins = 56;
   ptBins = 300; //ptBins = 150;
   dxyBins = 4;
   sizeBins = 21;
@@ -217,6 +256,40 @@ Validation::Validation(const edm::ParameterSet& iConfig)
   TA4Emu = TH1I("TA4Emu","TA4 emu", 16, 0, 16);
   wheelEmu = TH1F("wheelEmu", "wheel emu", 9, -4.5, 4.5);
 
+  eff_all  = TH1F("eff_all", " L1 efficiency all",  30, 0., 150.);
+  eff_pass = TH1F("eff_pass"," L1 efficiency pass",30, 0., 150.);
+  
+  phi_online_0 = TH1F("phi_online_0"," phi online all (step 1)",40, -3.14, 3.14);
+  phi_online_1 = TH1F("phi_online_1"," phi online all (step 2)",40, -3.14, 3.14);
+  phi_online_2 = TH1F("phi_online_2"," phi online matched tag (step 3)",40, -3.14, 3.14);
+  phi_online_3 = TH1F("phi_online_3"," phi online matched probe (step 4)",40, -3.14, 3.14);
+
+  eta_online_0 = TH1F("eta_online_0"," eta online all  (step 1)",40,-1.,1.);
+  eta_online_1 = TH1F("eta_online_1"," eta online all  (step 2)",40,-1.,1.);
+  eta_online_2 = TH1F("eta_online_2"," eta online matched tag (step 3)",40,-1.,1.);
+  eta_online_3 = TH1F("eta_online_3"," eta online matched probe (step 4)",40,-1.,1.);
+
+  pt_online_0 = TH1F("pt_online_0","pt online all (step 1)", 70, 0., 140.);
+
+  phi_offline_0 = TH1F("phi_offline_0"," phi offline all probes (step 1)",40, -3.14, 3.14);
+ phi_offline_1 = TH1F("phi_offline_1"," phi offline all probes (step 1)",40, -3.14, 3.14);
+  phi_offline_2 = TH1F("phi_offline_2"," phi offline tag Muons (step 3)",40, -3.14, 3.14);
+  phi_offline_3 = TH1F("phi_offline_3"," phi offline probe Muons (step 4)",40, -3.14, 3.14);
+
+  eta_offline_0 = TH1F("eta_offline_0"," eta offline all probes (step 1)",40,-1.,1.);
+  eta_offline_1 = TH1F("eta_offline_1"," eta offline all probes (step 1)",40,-1.,1.);
+  eta_offline_2 = TH1F("eta_offline_2"," eta offline tag Muons (step 3)",40,-1.,1.);
+  eta_offline_3 = TH1F("eta_offline_3"," eta offline probe Muons (step 4)",40,-1.,1.);
+
+  chambers_hits = TH1I("chambers_hits","hits on CSC & DT",10,0,10);
+  probes_gt2 = TH1I("probes_gt2"," nr of pprobs >=2",10,0,10);
+  dr_tag = TH1F("dr_tag", "DR for tag mu",60,0.,0.3);
+  dr_probe = TH1F("dr_probe", "DR for probe mu",60,0.,0.3);
+  dimuon = TH1F("dimuon", "inv mass dimuon",100,50.,150.);
+
+  rej_phi = TH1F("rej_phi","rejected probe phi",40, -3.14,3.14);
+  rej_eta = TH1F("rej_eta","rejected probe ",40,-1.,1.);
+  rej_DR = TH1F("rej_DR","rejected probe DR",50,0.,1.);
 
   //Other Calculations
   notMatched = 0;
@@ -231,6 +304,11 @@ Validation::Validation(const edm::ParameterSet& iConfig)
   sizeMismatches = 0;
   wheelMismatches = 0;
   events = 0;
+
+  eff_events_2pr=0;
+  eff_events_pass=0;
+  eff_events_final=0;
+
   emuMuonSize = 0;
   dataMuonSize = 0;
 
@@ -239,7 +317,7 @@ Validation::Validation(const edm::ParameterSet& iConfig)
 
 Validation::~Validation()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -251,7 +329,7 @@ Validation::~Validation()
 //
 
 // ------------ method called for each event  ------------
-void
+  void
 Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
@@ -262,7 +340,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Eta Collections
   edm::Handle<L1MuDTChambThContainer> etaInput;
   iEvent.getByToken(etaToken,etaInput);
-   
+
   //Muons Collections
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfDataMuons;
   iEvent.getByToken(token_bmtfData,bmtfDataMuons);
@@ -278,42 +356,42 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   events++;
 
   //====================== other calculations =========================================================
-  
+
 
   //====================== muons Handler ==============================================================
 
   for (auto imuA : *bmtfDataMuons ) {
-      //data 1D histograms
-      phisData.Fill(imuA.hwPhi());
-      etasData.Fill(imuA.hwEta());
-      ptData.Fill(imuA.hwPt());
-      pt2Data.Fill(imuA.hwPt2());
-      dxyData.Fill(imuA.hwDXY());
-      fineBitData.Fill(imuA.hwHF());
-      TA1Data.Fill(imuA.trackAddress().at(2));
-      TA2Data.Fill(imuA.trackAddress().at(3));
-      TA3Data.Fill(imuA.trackAddress().at(4));
-      TA4Data.Fill(imuA.trackAddress().at(5));
-      wheelData.Fill(returnWheel_Janos(imuA.trackAddress().at(0),
-					imuA.trackAddress().at(1)));
+    //data 1D histograms
+    phisData.Fill(imuA.hwPhi());
+    etasData.Fill(imuA.hwEta());
+    ptData.Fill(imuA.hwPt());
+    pt2Data.Fill(imuA.hwPt2());
+    dxyData.Fill(imuA.hwDXY());
+    fineBitData.Fill(imuA.hwHF());
+    TA1Data.Fill(imuA.trackAddress().at(2));
+    TA2Data.Fill(imuA.trackAddress().at(3));
+    TA3Data.Fill(imuA.trackAddress().at(4));
+    TA4Data.Fill(imuA.trackAddress().at(5));
+    wheelData.Fill(returnWheel_Janos(imuA.trackAddress().at(0),
+          imuA.trackAddress().at(1)));
   }
 
   for (auto imuB : *bmtfEmuMuons ) {
-      //emu 1D histograms
-      phisEmu.Fill(imuB.hwPhi());
-      etasEmu.Fill(imuB.hwEta());
-      ptEmu.Fill(imuB.hwPt());
-      pt2Emu.Fill(imuB.hwPt2());
-      dxyEmu.Fill(imuB.hwDXY());
-      fineBitEmu.Fill(imuB.hwHF());
-      TA1Emu.Fill(imuB.trackAddress().at(2));
-      TA2Emu.Fill(imuB.trackAddress().at(3));
-      TA3Emu.Fill(imuB.trackAddress().at(4));
-      TA4Emu.Fill(imuB.trackAddress().at(5));
-      //wheelEmu.Fill(returnWheel_2sComp(imuB.trackAddress().at(0),
-      //imuB.trackAddress().at(1)));
-      wheelEmu.Fill(returnWheel_Janos(imuB.trackAddress().at(0),
-				      imuB.trackAddress().at(1)));
+    //emu 1D histograms
+    phisEmu.Fill(imuB.hwPhi());
+    etasEmu.Fill(imuB.hwEta());
+    ptEmu.Fill(imuB.hwPt());
+    pt2Emu.Fill(imuB.hwPt2());
+    dxyEmu.Fill(imuB.hwDXY());
+    fineBitEmu.Fill(imuB.hwHF());
+    TA1Emu.Fill(imuB.trackAddress().at(2));
+    TA2Emu.Fill(imuB.trackAddress().at(3));
+    TA3Emu.Fill(imuB.trackAddress().at(4));
+    TA4Emu.Fill(imuB.trackAddress().at(5));
+    //wheelEmu.Fill(returnWheel_2sComp(imuB.trackAddress().at(0),
+    //imuB.trackAddress().at(1)));
+    wheelEmu.Fill(returnWheel_Janos(imuB.trackAddress().at(0),
+          imuB.trackAddress().at(1)));
   }
 
 
@@ -338,7 +416,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto imuA = dataPerProc[proc].begin();
     for (auto imuB = emuPerProc[proc].begin(); imuB != emuPerProc[proc].end(); imuB++) {
       if (imuA == dataPerProc[proc].end())
-	break;
+        break;
 
       phisHist.Fill(imuA->hwPhi(), imuB->hwPhi());
       etasHist.Fill(imuA->hwEta(), imuB->hwEta());
@@ -347,35 +425,35 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Check for Mismatches
       if (imuA->hwPhi() != imuB->hwPhi()) {
-	phiMismatches++;
-	mismatch = true;
+        phiMismatches++;
+        mismatch = true;
       }
       if (imuA->hwEta() != imuB->hwEta()) {
-	etaMismatches++;
-	mismatch = true;
+        etaMismatches++;
+        mismatch = true;
       }
       if (imuA->hwPt() != imuB->hwPt()) {
-	ptMismatches++;
-	mismatch = true;
+        ptMismatches++;
+        mismatch = true;
       }
       if (returnWheel_Janos(imuA->trackAddress().at(0), imuA->trackAddress().at(1))
-	  != returnWheel_Janos(imuB->trackAddress().at(0), imuB->trackAddress().at(1)) ) {
-	wheelMismatches++;
-	mismatch = true;
+          != returnWheel_Janos(imuB->trackAddress().at(0), imuB->trackAddress().at(1)) ) {
+        wheelMismatches++;
+        mismatch = true;
       }
       if (system == "KMTF" && imuA->hwPt2() != imuB->hwPt2()) {
-	pt2Mismatches++;
-	mismatch = true;
+        pt2Mismatches++;
+        mismatch = true;
       }
       if (system == "KMTF" && imuA->hwDXY() != imuB->hwDXY()) {
-	dxyMismatches++;
-	mismatch = true;
+        dxyMismatches++;
+        mismatch = true;
       }
 
       imuA++;
     }
 
-  }//for_proc
+  } //for_proc
 
 
   //Size Histogram 2D
@@ -393,25 +471,157 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     printEvent(phiInput.product(), etaInput.product(), bmtfDataMuons.product(), bmtfEmuMuons.product(), "GENERAL");
 
 
-  //Calculate Efficiency
-  const std::vector<reco::Muon> *offMuons = recoMuons.product(); // IMPORTANT - you can ONLY read this vector!
-  std::vector<reco::Muon> tagMuons, probeMuons;
+  // Calculate BMTF Efficiencies -----
 
-  //test
-  // for (auto mu: *offMuons)
-  //   std::cout << mu.pt() << "\t" << mu.eta() << "\t" << mu.phi() << "\t" << std::endl;
-}//analyze method
+  const std::vector<reco::Muon> *offMuons = recoMuons.product(); // IMPORTANT - you can ONLY read this vector!
+  std::vector<reco::Muon> tagMuons, probeMuons ;
+
+  std::vector<l1t::RegionalMuonCand> L1Muons;
+  for(auto l1mu : *bmtfDataMuons) {
+    // remove BX +- muons (prosexos)!
+    L1Muons.push_back(l1mu);
+  }
+
+
+//ie ------------------------- STEP 1 ------------------------------
+
+  double etaCut = 0.83; // eta cut
+  double ptCut   = 26.;   // Pt Cut
+  double DR        = 0.12;   // DR cut for matching --> changed from 1.0 to 0.12 ***
+  TLorentzVector Mu1, Mu2, diMu;
+
+   for(auto itrig : L1Muons){
+       double L1Eta = analysisTools::etaFromBmtf(itrig.hwEta());
+       double L1Phi = analysisTools::phiFromBmtf(itrig.hwPhi(), itrig.processor()); 
+       double L1Pt   = analysisTools::ptFromBmtf(itrig.hwPt());
+       eta_online_0.Fill(L1Eta);
+       phi_online_0.Fill(L1Phi);
+       pt_online_0.Fill(L1Pt);
+    }
+
+    for(auto imu : *offMuons){
+       if(imu.passed(imu.PFIsoTight)  && fabs(imu.eta()) < etaCut )   {   probeMuons.push_back(imu);
+	  chambers_hits.Fill(imu.numberOfChambersCSCorDT());
+          phi_offline_0.Fill(imu.phi());
+          eta_offline_0.Fill(imu.eta());
+       }
+    }
+
+//ie ----------------------- STEP 2 -----------------------------------------
+
+    int TagProbe;        // if muon is tagged, TagPos shows the probe muon position
+    int L1Pos;              // if muon is tagged, L1Pos shows the trigger muon position
+
+    if(probeMuons.size() >= 2) { // only events with at least 2 probes  -----
+      eff_events_2pr++;
+      probes_gt2.Fill(probeMuons.size());
+
+      //     std::reverse(begin(probeMuons), end(probeMuons)); // tested o.k.
+
+      for(auto imu : probeMuons) {
+	 phi_offline_1.Fill(imu.phi());
+	 eta_offline_1.Fill(imu.eta());
+}
+
+      TagProbe = 0;   
+      for(auto imu : probeMuons) {
+	 if(imu.pt() < ptCut) break;
+         L1Pos=0;  
+         for(auto itrig : L1Muons){
+            double L1Eta = analysisTools::etaFromBmtf(itrig.hwEta());
+            double L1Phi = analysisTools::phiFromBmtf(itrig.hwPhi(), itrig.processor()); 
+	    double L1Pt   = analysisTools::ptFromBmtf(itrig.hwPt());
+	    phi_online_1.Fill(L1Phi);
+	    eta_online_1.Fill(L1Eta);
+	    dr_tag.Fill(sqrt((L1Phi-imu.phi())*(L1Phi-imu.phi()) + (L1Eta-imu.eta())*(L1Eta-imu.eta())));
+
+	    // pt-cut for probe and online muons. Match probe with one online muon within DR<0.1 cone
+            if(L1Pt > ptCut && ((L1Phi-imu.phi())*(L1Phi-imu.phi()) + (L1Eta-imu.eta())*(L1Eta-imu.eta())) < DR*DR) {
+               tagMuons.push_back(imu);  // tag found !!!
+
+	       phi_offline_2.Fill(imu.phi());
+	       eta_offline_2.Fill(imu.eta());
+ 	       phi_online_2.Fill(L1Phi);
+	       eta_online_2.Fill(L1Eta);
+
+              break; // to avoid double match with another L1 mu
+            }
+            L1Pos++;
+         }
+        if(tagMuons.size()==1) break; // keep events with only one tag
+        TagProbe++;
+      }
+
+//ie  ------------------------------ STEP 3 -----------------------------------
+
+      //    check invariant mass of a tag-probe pair
+      int massOK = 0;
+      int iProbe = 0; // this is the position of the "probe" muon (and TagProbe is the probe muon that was tagged)
+      if(tagMuons.size() ==1){  // if tag found
+      	for(auto imu : probeMuons){
+	   if(iProbe==TagProbe) { iProbe++; continue; }  // skip the tag-probe muon
+           Mu1.SetPtEtaPhiM(probeMuons[TagProbe].pt(),probeMuons[TagProbe].eta(),probeMuons[TagProbe].phi(),0.105658);
+           Mu2.SetPtEtaPhiM(imu.pt(),imu.eta(),imu.phi(),0.105658);
+           diMu = Mu1 + Mu2;
+	   dimuon.Fill(diMu.M());
+           if(diMu.M() > 71 && diMu.M() < 111) {
+             // remove tag muon and also its online partner
+             probeMuons.erase(probeMuons.begin() + TagProbe);
+             L1Muons.erase(L1Muons.begin() + L1Pos); 
+             massOK = 1;
+	     break;  // "probe" found
+           }
+	   iProbe++;
+	 }
+       } 
+
+//ie  ------------------------------ STEP 4----------------------------            
+
+      // fill histos of efficiencies with "probe" muon
+      if(massOK==1) { 
+	 double DeltaR2 ;
+         eff_events_pass++;
+	 eff_all.Fill(probeMuons[iProbe].pt());
+
+	 phi_offline_3.Fill(probeMuons[iProbe].phi());
+	 eta_offline_3.Fill(probeMuons[iProbe].eta());
+
+         for(auto itrig : L1Muons){
+            double L1Eta = analysisTools::etaFromBmtf(itrig.hwEta());
+            double L1Phi = analysisTools::phiFromBmtf(itrig.hwPhi(), itrig.processor()); 
+	    DeltaR2 = (L1Phi-probeMuons[iProbe].phi()) * (L1Phi-probeMuons[iProbe].phi()) + 
+	                     (L1Eta-probeMuons[iProbe].eta()) * (L1Eta- probeMuons[iProbe].eta());
+
+ 	    dr_probe.Fill(sqrt(DeltaR2));
+
+            if(DeltaR2 < DR*DR ) {
+	        eff_pass.Fill(probeMuons[iProbe].pt());
+                eff_events_final++;
+	        phi_online_3.Fill(L1Phi);
+	        eta_online_3.Fill(L1Eta);
+	       break ;
+	    } else {
+	      rej_phi.Fill(L1Phi);
+	      rej_eta.Fill(L1Eta);
+	      rej_DR.Fill(sqrt(DeltaR2));
+	    }
+         }
+      }
+     
+    } //end of at least 2  probeMuons 
+
+} //end of analyze method
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+  void 
 Validation::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+  void 
 Validation::endJob() 
 {
   //Ratios
@@ -480,6 +690,40 @@ Validation::endJob()
     TA3Emu.Write();
     TA4Emu.Write();
     wheelEmu.Write();
+
+    eff_all.Write();
+    eff_pass.Write();
+   
+    phi_online_0.Write();
+    phi_online_1.Write();
+    phi_online_2.Write();
+    phi_online_3.Write();
+    eta_online_0.Write();
+    eta_online_1.Write();
+    eta_online_2.Write();
+    eta_online_3.Write();
+
+    pt_online_0.Write();
+
+    phi_offline_0.Write();
+    phi_offline_1.Write();
+    phi_offline_2.Write();
+    phi_offline_3.Write();
+    eta_offline_0.Write();
+    eta_offline_1.Write();
+    eta_offline_2.Write();
+    eta_offline_3.Write();
+
+    chambers_hits.Write();
+    probes_gt2.Write();
+    dr_tag.Write();
+    dr_probe.Write();
+    dimuon.Write();
+
+    rej_phi.Write();
+    rej_eta.Write();
+    rej_DR.Write();
+
   }
   else
     fout << "Cannot save the output to the file." << std::endl;
@@ -488,20 +732,27 @@ Validation::endJob()
   fout << "SUMMARY" << std::endl;
   fout << "===================================================" << std::endl;
   fout << "Processed Events: " << events << std::endl;
-  fout << "Emulator #Muons: " << emuMuonSize << std::endl;
-  fout << "Data #Muons: " << dataMuonSize << std::endl;
-  fout << "pt Mismatches: " << ptMismatches << std::endl;
+  fout << "Emulator #Muons:  " << emuMuonSize << std::endl;
+
+  fout << "Data #Muons:      " << dataMuonSize << std::endl;
+  fout << "pt Mismatches:    " << ptMismatches << " (" << std::setprecision(2) << 100.*ptMismatches/emuMuonSize  << "%)" << std::endl;
   if (system == "KMTF") {
-    fout << "pt2 Mismatches: " << pt2Mismatches << std::endl;
-    fout << "dxy Mismatches: " << dxyMismatches << std::endl;
+    fout << "pt2 Mismatches:   " << pt2Mismatches << " (" << std::setprecision(2) << 100.*pt2Mismatches/emuMuonSize << "%)" << std::endl;
+    fout << "dxy Mismatches:   " << dxyMismatches << " (" << std::setprecision(2) << 100.*dxyMismatches/emuMuonSize << "%)" << std::endl;
   }
-  fout << "phi Mismatches: " << phiMismatches << std::endl;
-  fout << "eta Mismatches: " << etaMismatches << std::endl;
-  fout << "wheel Mismatches: " << wheelMismatches << std::endl;
-  fout << "size Mismatches: " << mismatchedContainers << std::endl;
+  fout << "phi Mismatches:   " << phiMismatches   << " (" << std::setprecision(2) << 100.*phiMismatches/emuMuonSize << "%)" << std::endl;
+  fout << "eta Mismatches:   " << etaMismatches   << " (" << std::setprecision(2) << 100.*etaMismatches/emuMuonSize << "%)" << std::endl;
+  fout << "wheel Mismatches: " << wheelMismatches << " (" << std::setprecision(2) << 100.*wheelMismatches/emuMuonSize << "%)" << std::endl;
+
+  fout << "size Mismatches:  " << mismatchedContainers << " (" << std::setprecision(2) << 100.*(fabs(emuMuonSize-dataMuonSize)/(float)emuMuonSize) << "%)" << std::endl;
   //fout << "Muons not matched: " << muonsMissing << "\tpercent: " << 100*muonsMissing/events << "%" << std::endl;
 
+  fout << "Events with >= 2 Probes  mu: " << eff_events_2pr   << std::endl;
+  fout << "Events which pass to efficiency: " << eff_events_pass << std::endl;
+  fout << "Events which pass final selection: " << eff_events_final << std::endl;
+
   fout.close();
+
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -527,8 +778,8 @@ Validation::otherCalculation(const edm::Handle<L1MuDTChambPhContainer> phiHits, 
 
 void
 Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThContainer* etas,
-		      const l1t::RegionalMuonCandBxCollection* muons_A, const l1t::RegionalMuonCandBxCollection* muons_B,
-		      const std::string type = "UNSPECIFIED") {
+    const l1t::RegionalMuonCandBxCollection* muons_A, const l1t::RegionalMuonCandBxCollection* muons_B,
+    const std::string type = "UNSPECIFIED") {
   fout << "------- NEW [" << type << "] MISMATCH EVENT -------" << std::endl;
 
   for (int proc=0; proc<12; proc++) {
@@ -539,46 +790,46 @@ Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThCo
 
       fout << "Wheel\tTs2tag\tStation\tRPC-bit\tQuality\tPhiB\tPhi" << std::endl;
       for (auto phi : *(phis->getContainer()) ) {
-	if (proc != phi.scNum())
-	  continue;
+        if (proc != phi.scNum())
+          continue;
 
-	if (bx != phi.bxNum())
-	  continue;
+        if (bx != phi.bxNum())
+          continue;
 
-	fout << phi.whNum() << "\t";
-	fout << phi.Ts2Tag() << "\t";
-	fout << phi.stNum() << "\t";
-	fout << phi.RpcBit() << "\t";
-	fout << phi.code() << "\t";
-	fout << phi.phiB() << "\t";
-	fout << phi.phi() << std::endl;
-	// fout << "processor=" << phi.scNum() << std::endl;
-	// fout << "BX=" << phi.bxNum() << "\t";
+        fout << phi.whNum() << "\t";
+        fout << phi.Ts2Tag() << "\t";
+        fout << phi.stNum() << "\t";
+        fout << phi.RpcBit() << "\t";
+        fout << phi.code() << "\t";
+        fout << phi.phiB() << "\t";
+        fout << phi.phi() << std::endl;
+        // fout << "processor=" << phi.scNum() << std::endl;
+        // fout << "BX=" << phi.bxNum() << "\t";
       }
 
       fout << "Wheel\tStation\tQuality\tEtaHits" << std::endl;
       for (auto eta : *(etas->getContainer()) ) {
-	if (proc != eta.scNum())
-	  continue;
+        if (proc != eta.scNum())
+          continue;
 
-	if (bx != eta.bxNum())
-	  continue;
+        if (bx != eta.bxNum())
+          continue;
 
-	fout << eta.whNum() << "\t";
-	fout << eta.stNum() << "\t";
+        fout << eta.whNum() << "\t";
+        fout << eta.stNum() << "\t";
 
-	//fout << "etaQual=";
-	for (int i=0; i<7; i++)
-	  fout << eta.quality(i);
-	fout << "\t";
+        //fout << "etaQual=";
+        for (int i=0; i<7; i++)
+          fout << eta.quality(i);
+        fout << "\t";
 
-	//fout << "etaPos=";
-	for (int i=0; i<7; i++)
-	  fout << eta.position(i);
-	fout << std::endl;
+        //fout << "etaPos=";
+        for (int i=0; i<7; i++)
+          fout << eta.position(i);
+        fout << std::endl;
 
-	// fout << "processor=" << eta.scNum() << std::endl;
-	// fout << "BX=" << eta.bxNum() << "\t";
+        // fout << "processor=" << eta.scNum() << std::endl;
+        // fout << "BX=" << eta.bxNum() << "\t";
       }
 
     }//bx iteration 
@@ -608,7 +859,7 @@ Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThCo
       fout << analysisTools::toHex(mu_TA.at(4)) << analysisTools::toHex(mu_TA.at(5)) << std::endl;
       fout << "HW_Sign=\t" << muon->hwSign() << std::endl;
       fout << "HW_SignValid=\t" << muon->hwSignValid() << std::endl;
-    
+
     }//muons data
   }
 
@@ -641,103 +892,103 @@ Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThCo
   }//muons_BX iteration
 
   fout << std::endl << std::endl;
-}
-
-
-int
-Validation::returnWheel_2sComp(const int& side, const int& wheel) {
-  if (side == 1 && wheel == 1)
-    return -3;
-  else if (side == 1 && wheel == 2)
-    return -2;
-  else if (side == 1 && wheel == 3)
-    return -1;
-  else if (side == 0 && wheel == 0)
-    return 0;
-  else if (side == 0 && wheel == 1)
-    return 1;
-  else if (side == 0 && wheel == 2)
-    return 2;
-  else if (side == 0 && wheel == 3)
-    return 3;
-  else {
-    std::cout << "Unrecognized pair of side and wheel.." << std::endl;
-    return -99;
   }
-}
 
 
-int
-Validation::returnWheel_Janos(const int& side, const int& wheel) {
-  if (side == 1 && wheel == 3)
-    return -3;
-  else if (side == 1 && wheel == 2)
-    return -2;
-  else if (side == 1 && wheel == 1)
-    return -1;
-  else if ( (side == 1 && wheel == 0) || (side == 0 && wheel == 0) )
-    return 0;
-  else if (side == 0 && wheel == 1)
-    return 1;
-  else if (side == 0 && wheel == 2)
-    return 2;
-  else if (side == 0 && wheel == 3)
-    return 3;
-  else {
-    std::cout << "Unrecognized pair of side and wheel.." << std::endl;
-    return -99;
-  }
-}
+  int
+    Validation::returnWheel_2sComp(const int& side, const int& wheel) {
+      if (side == 1 && wheel == 1)
+        return -3;
+      else if (side == 1 && wheel == 2)
+        return -2;
+      else if (side == 1 && wheel == 3)
+        return -1;
+      else if (side == 0 && wheel == 0)
+        return 0;
+      else if (side == 0 && wheel == 1)
+        return 1;
+      else if (side == 0 && wheel == 2)
+        return 2;
+      else if (side == 0 && wheel == 3)
+        return 3;
+      else {
+        std::cout << "Unrecognized pair of side and wheel.." << std::endl;
+        return -99;
+      }
+    }
 
 
-int
-Validation::returnWheel_Michalis(const int& side, const int& wheel) {
-  if (side == 1 && wheel == 3)
-    return -3;
-  else if (side == 1 && wheel == 2)
-    return -2;
-  else if (side == 1 && wheel == 1)
-    return -1;
-  else if (side == 1 && wheel == 0)
-    return 4;//return error
-  else if (side == 0 && wheel == 0)
-    return 0;
-  else if (side == 0 && wheel == 1)
-    return 1;
-  else if (side == 0 && wheel == 2)
-    return 2;
-  else if (side == 0 && wheel == 3)
-    return 3;
-  else {
-    std::cout << "Unrecognized pair of side and wheel.." << std::endl;
-    return -4;//return serious error
-  }
-}
-
-/*/// printPairMuons
-
-    //std::map<int, int> muA_TA = muon_A.trackAddress(), muB_TA = muon_B->trackAddress();
-    //if (muA_TA.size() < 5 || muB_TA.size() < 5)
-    //return;
-
-//    std::cout << std::endl;
-//    std::cout << "HW-Muon" << "\t\t\t| " << "SW-Muon" << std::endl;
-//    std::cout << "HW_Processor=\t" << muon_A.processor() << "\t| " << "SW_Processor=\t" << muon_B->processor() << std::endl;
-//    std::cout << "HW_Link=\t" << muon_A.link() << "\t| " << "SW_Link=\t" << muon_B->link() << std::endl;  
-//    std::cout << "HW_Pt=\t\t" << muon_A.hwPt() << "\t| " << "SW_Pt=\t" << muon_B->hwPt() << std::endl;
-//    std::cout << "HW_Phi=\t\t" << muon_A.hwPhi() << "\t| " << "SW_Phi=\t" << muon_B->hwPhi() << std::endl;
-//    std::cout << "HW_Eta=\t\t" << muon_A.hwEta() << "\t| " << "SW_Eta=\t" << muon_B->hwEta() << std::endl;
-//    std::cout << "HW_fineBit=\t" << muon_A.hwHF() << "\t| " << "SW_fineBit=\t" << muon_B->hwHF() << std::endl;
-//    std::cout << "HW_Quality=\t" << muon_A.hwQual() << "\t| " << "SW_Quality=\t" << muon_B->hwQual() << std::endl;
-//    //std::cout << "HW_TrckAddress=\t" << analysisTools::toHex(muA_TA.at(2)) << analysisTools::toHex(muA_TA.at(3));
-//    //std::cout << analysisTools::toHex(muA_TA.at(4)) << analysisTools::toHex(muA_TA.at(5)) << "\t| ";
-//    //std::cout << "SW_TrckAddress= " << analysisTools::toHex(muB_TA.at(2)) << analysisTools::toHex(muB_TA.at(3));
-//    //std::cout << analysisTools::toHex(muB_TA.at(4)) << analysisTools::toHex(muB_TA.at(5)) << std::endl;
-//    std::cout << "HW_Sign=\t" << muon_A.hwSign() << "\t| " << "SW_Sign=\t" << muon_B->hwSign() << std::endl;
-//    std::cout << "HW_SignValid=\t" << muon_A.hwSignValid() << "\t| " << "SW_SignValid=\t" << muon_B->hwSignValid() << std::endl;
-
- */
+  int
+    Validation::returnWheel_Janos(const int& side, const int& wheel) {
+      if (side == 1 && wheel == 3)
+        return -3;
+      else if (side == 1 && wheel == 2)
+        return -2;
+      else if (side == 1 && wheel == 1)
+        return -1;
+      else if ( (side == 1 && wheel == 0) || (side == 0 && wheel == 0) )
+        return 0;
+      else if (side == 0 && wheel == 1)
+        return 1;
+      else if (side == 0 && wheel == 2)
+        return 2;
+      else if (side == 0 && wheel == 3)
+        return 3;
+      else {
+        std::cout << "Unrecognized pair of side and wheel.." << std::endl;
+        return -99;
+      }
+    }
 
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(Validation);
+  int
+    Validation::returnWheel_Michalis(const int& side, const int& wheel) {
+      if (side == 1 && wheel == 3)
+        return -3;
+      else if (side == 1 && wheel == 2)
+        return -2;
+      else if (side == 1 && wheel == 1)
+        return -1;
+      else if (side == 1 && wheel == 0)
+        return 4;//return error
+      else if (side == 0 && wheel == 0)
+        return 0;
+      else if (side == 0 && wheel == 1)
+        return 1;
+      else if (side == 0 && wheel == 2)
+        return 2;
+      else if (side == 0 && wheel == 3)
+        return 3;
+      else {
+        std::cout << "Unrecognized pair of side and wheel.." << std::endl;
+        return -4;//return serious error
+      }
+    }
+
+  /*/// printPairMuons
+
+  //std::map<int, int> muA_TA = muon_A.trackAddress(), muB_TA = muon_B->trackAddress();
+  //if (muA_TA.size() < 5 || muB_TA.size() < 5)
+  //return;
+
+  //    std::cout << std::endl;
+  //    std::cout << "HW-Muon" << "\t\t\t| " << "SW-Muon" << std::endl;
+  //    std::cout << "HW_Processor=\t" << muon_A.processor() << "\t| " << "SW_Processor=\t" << muon_B->processor() << std::endl;
+  //    std::cout << "HW_Link=\t" << muon_A.link() << "\t| " << "SW_Link=\t" << muon_B->link() << std::endl;  
+  //    std::cout << "HW_Pt=\t\t" << muon_A.hwPt() << "\t| " << "SW_Pt=\t" << muon_B->hwPt() << std::endl;
+  //    std::cout << "HW_Phi=\t\t" << muon_A.hwPhi() << "\t| " << "SW_Phi=\t" << muon_B->hwPhi() << std::endl;
+  //    std::cout << "HW_Eta=\t\t" << muon_A.hwEta() << "\t| " << "SW_Eta=\t" << muon_B->hwEta() << std::endl;
+  //    std::cout << "HW_fineBit=\t" << muon_A.hwHF() << "\t| " << "SW_fineBit=\t" << muon_B->hwHF() << std::endl;
+  //    std::cout << "HW_Quality=\t" << muon_A.hwQual() << "\t| " << "SW_Quality=\t" << muon_B->hwQual() << std::endl;
+  //    //std::cout << "HW_TrckAddress=\t" << analysisTools::toHex(muA_TA.at(2)) << analysisTools::toHex(muA_TA.at(3));
+  //    //std::cout << analysisTools::toHex(muA_TA.at(4)) << analysisTools::toHex(muA_TA.at(5)) << "\t| ";
+  //    //std::cout << "SW_TrckAddress= " << analysisTools::toHex(muB_TA.at(2)) << analysisTools::toHex(muB_TA.at(3));
+  //    //std::cout << analysisTools::toHex(muB_TA.at(4)) << analysisTools::toHex(muB_TA.at(5)) << std::endl;
+  //    std::cout << "HW_Sign=\t" << muon_A.hwSign() << "\t| " << "SW_Sign=\t" << muon_B->hwSign() << std::endl;
+  //    std::cout << "HW_SignValid=\t" << muon_A.hwSignValid() << "\t| " << "SW_SignValid=\t" << muon_B->hwSignValid() << std::endl;
+
+*/
+
+
+  //define this as a plug-in
+  DEFINE_FWK_MODULE(Validation);
