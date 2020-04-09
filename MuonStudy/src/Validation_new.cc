@@ -86,6 +86,8 @@ private:
   int returnWheel_2sComp(const int&, const int&);
   int returnWheel_Janos(const int&, const int&);
   int returnWheel_Michalis(const int&, const int&);
+  void sortRecoVector(std::vector<reco::Muon>&, string);
+  void sortL1Vector(std::vector<l1t::RegionalMuonCand>&, string);
 
   // edm::EDGetTokenT<FEDRawDataCollection> binToken_original;
   // edm::EDGetTokenT<FEDRawDataCollection> binToken_replica;
@@ -334,7 +336,7 @@ Validation::~Validation()
 //
 
 // ------------ method called for each event  ------------
-  void
+void
 Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
@@ -490,7 +492,6 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       L1Muons.push_back(l1mu);
     }
 
-
     //ie ------------------------- STEP 1 ------------------------------
 
     double etaCut = 0.83;  // eta cut
@@ -560,6 +561,18 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         TagProbe++;
       }
 
+      //---------------- sorting examples --------------------------------
+      // if (probeMuons.size() == 0) return;
+      // sortRecoVector(probeMuons,"pt"); // sort offline muons in pt
+      // std::cout << "pt-sorted probeMuons: ";
+      // for (auto mu: probeMuons) std::cout << mu.pt() << ", ";
+      // std::cout << std::endl;
+      // sortL1Vector(L1Muons,"phi"); // sort online muons in phi
+      // std::cout << "phi-sorted L1Muons: ";
+      // for (auto mu: L1Muons) std::cout << mu.hwPhi() << ", ";
+      // std::cout << std::endl;
+      // return;
+
       //ie  ------------------------------ STEP 3 -----------------------------------
 
       //    check invariant mass of a tag-probe pair
@@ -620,18 +633,20 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   } //end of the 'doEfficiency' scope
+
+  return;
 } //end of analyze method
 
 
 // ------------ method called once each job just before starting event loop  ------------
-  void 
+void
 Validation::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-  void 
+void
 Validation::endJob() 
 {
   //Ratios
@@ -771,6 +786,33 @@ void
 Validation::otherCalculation(const edm::Handle<L1MuDTChambPhContainer> phiHits, TH2I& hist2D) {
   return;  
 }
+
+void
+Validation::sortRecoVector(std::vector<reco::Muon>& vec, string var) {
+  if (var == "pt")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.pt()>b.pt(); } );
+  else if (var == "eta")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.eta()>b.eta(); } );
+  else if (var == "phi")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.phi()>b.phi(); } );
+  else // guard if sort requested is not pt, eta or phi
+    throw std::runtime_error("Unsupported variable to sort. The 'sortVector' function can sort in pt, eta or phi.");
+  return;
+}
+
+void
+Validation::sortL1Vector(std::vector<l1t::RegionalMuonCand>& vec, string var) {
+  if (var == "pt")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.hwPt()>b.hwPt(); } );
+  else if (var == "eta")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.hwEta()>b.hwEta(); } );
+  else if (var == "phi")
+    std::sort(vec.begin(), vec.end(), [](auto a, auto b) { return a.hwPhi()>b.hwPhi(); } );
+  else // guard if sort requested is not pt, eta or phi
+    throw std::runtime_error("Unsupported variable to sort. The 'sortVector' function can sort in pt, eta or phi.");
+  return;
+}
+
 
 void
 Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThContainer* etas,
