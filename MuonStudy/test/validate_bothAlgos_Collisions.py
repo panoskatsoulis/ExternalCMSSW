@@ -56,6 +56,10 @@ args.register("isMC", False,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.bool,
               "If true, the given dataset is a MC.")
+args.register("doEff", False,
+              VarParsing.VarParsing.multiplicity.singleton,
+              VarParsing.VarParsing.varType.bool,
+              "If true, calculates the BMTF efficiency using the T&P method.")
 args.register("limitQuery", 0,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.int,
@@ -115,6 +119,7 @@ if query_type == "single" : #### Single DAS query
     print("Querying files for the Run " + str(run) + '...')
     query_out = os.popen(das_query)
     files += cms.untracked.vstring('root://xrootd-cms.infn.it/'+_file.strip() for _file in query_out)
+#    files += cms.untracked.vstring('root://grid02.physics.uoi.gr/'+_file.strip() for _file in query_out)
     das_queries.append(das_query)
 elif query_type == "multiple" : #### Multiple DAS queries to form the files vector
     print("Will perform a 'multiple' DAS query.")
@@ -221,11 +226,13 @@ if args.addFakeParams:
 # load Validator
 process.load('ExternalCMSSW.MuonStudy.validationNew_cfi')
 process.validation.muonsData = cms.InputTag("bmtfDigis:"+legacyTag)
+process.validation.doEfficiency = cms.bool(args.doEff)
 process.validation2 = process.validation.clone(
     system = cms.string("KMTF"),
+    doEfficiency = cms.bool(args.doEff),
     muonsData = cms.InputTag("bmtfDigis:"+kalmanTag),
     muonsEmu = cms.InputTag("simKBmtfDigis:BMTF")
-    )
+)
 #process.muonStudy.phiHits = cms.InputTag("twinMuxStage2Digis:PhIn")#info to be used only for print out
 #process.muonStudy.etaHits = cms.InputTag("twinMuxStage2Digis:ThIn")#info to be used only for print out
 
@@ -250,10 +257,10 @@ process.path = cms.Path(
     process.bmtfDigis              #unpack BMTF
     #+process.twinMuxStage2Digis   #unpack TM
     +process.simBmtfDigis          #emulation
-    +process.simKBmtfStubs
-    +process.simKBmtfDigis
+    #+process.simKBmtfStubs
+    #+process.simKBmtfDigis
     +process.validation            #BMTF validation
-    +process.validation2           #KMTF validation
+    # +process.validation2           #KMTF validation
     # +process.l1brl                 #MuonBarrelParams Viewer (needs to be at the end of the chain cause the es params will be fetched once they asked.)
 )
 

@@ -34,11 +34,14 @@ namespace analysisTools {
   float phiFromBmtf(const int& hwPhi, const int& proc) {
     float phi=proc*48+hwPhi;
     phi=phi/576*6.28-3.14*15/180;
-    if (phi>3.14) phi=phi-6.28;
-    
+    if (phi>3.14) phi=phi-6.28;    
     return phi;
   }
-  
+
+  float ptFromBmtf(const int& hwPt){
+    return hwPt*0.5;
+}  
+
   std::string trAddrFromBmtf(const int& muon, const std::vector<int>& hwTrAddr) {
     std::string trAddr = "";
     for (int i = 0; i < 4; i++)

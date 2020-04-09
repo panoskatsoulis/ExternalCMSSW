@@ -26,6 +26,15 @@ kalmanTag = "BMTF2"
 lumiBegin = "100"
 lumiEnd = "200"
 
+#events = 40000
+#run = "334186"
+#dataset = "/Cosmics/Commissioning2019-v1/RAW"
+#gTag = "106X_dataRun3_HLT_v3"
+#legacyTag = "BMTF2"
+#kalmanTag = "BMTF"
+#lumiBegin = "1"
+#lumiEnd = "50"
+
 
 #### SINGLE DAS query
 das_query = 'dasgoclient --query="file dataset='+dataset+' run='+run+'"'
@@ -125,16 +134,16 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 )
 
 # Configure Emulator's masks
-masked = '111111111111'
-no = '000000000000'
-process.fakeBmtfParams.mask_phtf_st1 = cms.vstring(no, no, no, no, no, no, no)
-process.fakeBmtfParams.mask_phtf_st2 = cms.vstring(no, no, no, no, no, no, no)
-process.fakeBmtfParams.mask_phtf_st3 = cms.vstring(no, no, no, no, no, no, no)
-process.fakeBmtfParams.mask_phtf_st4 = cms.vstring(no, no, no, no, no, no, no)
+#masked = '111111111111'
+#no = '000000000000'
+#process.fakeBmtfParams.mask_phtf_st1 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_phtf_st2 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_phtf_st3 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_phtf_st4 = cms.vstring(no, no, no, no, no, no, no)
 
-process.fakeBmtfParams.mask_ettf_st1 = cms.vstring(no, no, no, no, no, no, no)
-process.fakeBmtfParams.mask_ettf_st2 = cms.vstring(no, no, no, no, no, no, no)
-process.fakeBmtfParams.mask_ettf_st3 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_ettf_st1 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_ettf_st2 = cms.vstring(no, no, no, no, no, no, no)
+#process.fakeBmtfParams.mask_ettf_st3 = cms.vstring(no, no, no, no, no, no, no)
 
 
 # load Validator
