@@ -17,14 +17,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #########  INPUT FILES  #####################
 import glob, os
 
-events = 10
+events = 1000
 dataset = "/SingleMuon/Run2018C-ZMu-12Nov2019_UL2018-v2/RAW-RECO"
 run = "319449"
 gTag = "101X_dataRun2_HLT_v7"
-legacyTag = "BMTF"
-kalmanTag = "BMTF2"
-lumiBegin = "100"
-lumiEnd = "200"
+legacyTag = "BMTF2"
+kalmanTag = "BMTF"
+lumiBegin = "10"
+lumiEnd = "30"
 
 
 #### SINGLE DAS query

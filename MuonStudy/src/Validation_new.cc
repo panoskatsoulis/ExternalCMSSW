@@ -290,7 +290,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       phisData.Fill(imuA.hwPhi());
       etasData.Fill(imuA.hwEta());
       ptData.Fill(imuA.hwPt());
-      pt2Data.Fill(imuA.hwPt2());
+      pt2Data.Fill(imuA.hwPtUnconstrained());
       dxyData.Fill(imuA.hwDXY());
       fineBitData.Fill(imuA.hwHF());
       TA1Data.Fill(imuA.trackAddress().at(2));
@@ -306,7 +306,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       phisEmu.Fill(imuB.hwPhi());
       etasEmu.Fill(imuB.hwEta());
       ptEmu.Fill(imuB.hwPt());
-      pt2Emu.Fill(imuB.hwPt2());
+      pt2Emu.Fill(imuB.hwPtUnconstrained());
       dxyEmu.Fill(imuB.hwDXY());
       fineBitEmu.Fill(imuB.hwHF());
       TA1Emu.Fill(imuB.trackAddress().at(2));
@@ -346,7 +346,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       phisHist.Fill(imuA->hwPhi(), imuB->hwPhi());
       etasHist.Fill(imuA->hwEta(), imuB->hwEta());
       ptHist.Fill(imuA->hwPt(), imuB->hwPt());
-      pt2Hist.Fill(imuA->hwPt2(), imuB->hwPt2());
+      pt2Hist.Fill(imuA->hwPtUnconstrained(), imuB->hwPtUnconstrained());
 
       //Check for Mismatches
       if (imuA->hwPhi() != imuB->hwPhi()) {
@@ -366,7 +366,7 @@ Validation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	wheelMismatches++;
 	mismatch = true;
       }
-      if (system == "KMTF" && imuA->hwPt2() != imuB->hwPt2()) {
+      if (system == "KMTF" && imuA->hwPtUnconstrained() != imuB->hwPtUnconstrained()) {
 	pt2Mismatches++;
 	mismatch = true;
       }
