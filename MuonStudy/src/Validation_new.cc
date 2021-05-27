@@ -591,9 +591,12 @@ Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThCo
       fout << "HW_BX=\t\t" << bx << std::endl;
       fout << "HW_Link=\t" << muon->link() << std::endl;  
       fout << "HW_Pt=\t\t" << muon->hwPt() << std::endl;
+      fout << "HW_Pt2=\t\t" << muon->hwPtUnconstrained() << std::endl;
       fout << "HW_Phi=\t\t" << muon->hwPhi() << std::endl;
       fout << "HW_Eta=\t\t" << muon->hwEta() << std::endl;
+      fout << "HW_DXY=\t\t" << muon->hwDXY() << std::endl;
       fout << "HW_fineBit=\t" << muon->hwHF() << std::endl;
+      fout << "HW_wheel=\t" << returnWheel_Michalis(muon->trackAddress().at(0), muon->trackAddress().at(1)) << std::endl;
       fout << "HW_Quality=\t" << muon->hwQual() << std::endl;
       fout << "HW_TrckAddress=\t" << analysisTools::toHex(mu_TA.at(2)) << analysisTools::toHex(mu_TA.at(3));
       fout << analysisTools::toHex(mu_TA.at(4)) << analysisTools::toHex(mu_TA.at(5)) << std::endl;
@@ -618,9 +621,12 @@ Validation::printEvent(const L1MuDTChambPhContainer* phis, const L1MuDTChambThCo
       fout << "SW_BX=\t\t" << bx << std::endl;
       fout << "SW_Link=\t" << muon->link() << std::endl;  
       fout << "SW_Pt=\t\t" << muon->hwPt() << std::endl;
+      fout << "SW_Pt2=\t\t" << muon->hwPtUnconstrained() << std::endl;
       fout << "SW_Phi=\t\t" << muon->hwPhi() << std::endl;
       fout << "SW_Eta=\t\t" << muon->hwEta() << std::endl;
+      fout << "SW_DXY=\t\t" << muon->hwDXY() << std::endl;
       fout << "SW_fineBit=\t" << muon->hwHF() << std::endl;
+      fout << "SW_wheel=\t" << returnWheel_Michalis(muon->trackAddress().at(0), muon->trackAddress().at(1)) << std::endl;
       fout << "SW_Quality=\t" << muon->hwQual() << std::endl;
       fout << "SW_TrckAddress=\t" << analysisTools::toHex(mu_TA.at(2)) << analysisTools::toHex(mu_TA.at(3));
       fout << analysisTools::toHex(mu_TA.at(4)) << analysisTools::toHex(mu_TA.at(5)) << std::endl;
