@@ -30,8 +30,8 @@ scram b -j 8
 
 ### Run Validation
 The Validation code is located in the `MuonStudy` pkg. There are 2 different configuration files, one for Cosmic Runs and one for Collision Runs.
-- Cosmic Runs    : [MuonStudy/test/validate_bothAlgos_Cosmics.py](../blob/CMSSW_11_2_X/MuonStudy/test/validate_bothAlgos_Cosmics.py)
-- Collision Runs : [MuonStudy/test/validate_bothAlgos_Collisions.py](../blob/CMSSW_11_2_X/MuonStudy/test/validate_bothAlgos_Collisions.py)
+- Cosmic Runs    : [MuonStudy/test/validate_bothAlgos_Cosmics.py](../CMSSW_11_2_X/MuonStudy/test/validate_bothAlgos_Cosmics.py)
+- Collision Runs : [MuonStudy/test/validate_bothAlgos_Collisions.py](../CMSSW_11_2_X/MuonStudy/test/validate_bothAlgos_Collisions.py)
 
 For validating a Cosmics Run, one needs to modify the lines in the config file here [1] and then to run the following command
 `cmsRun ExternalCMSSW/MuonStudy/test/validate_bothAlgos_Cosmics.py`
