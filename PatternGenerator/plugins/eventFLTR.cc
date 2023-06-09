@@ -122,14 +122,39 @@ bool eventFLTR::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // if ( not (dataMuon->hwPt() != emuMuon->hwPt() and dataMuon->hwPtUnconstrained() == emuMuon->hwPtUnconstrained() and dataMuon->hwDXY() != emuMuon->hwDXY()) )
   //   return false;
 
-  if ( not (dataMuon->hwPt() != emuMuon->hwPt() and dataMuon->hwPtUnconstrained() != emuMuon->hwPtUnconstrained() and dataMuon->hwDXY() != emuMuon->hwDXY()) )
-    return false;
+  // if ( not (dataMuon->hwPt() != emuMuon->hwPt() and dataMuon->hwPtUnconstrained() != emuMuon->hwPtUnconstrained() and dataMuon->hwDXY() != emuMuon->hwDXY()) )
+  //   return false;
   // if ( not (dataMuon->hwPt() == emuMuon->hwPt() and dataMuon->hwPtUnconstrained() == emuMuon->hwPtUnconstrained() and dataMuon->hwDXY() == emuMuon->hwDXY()) )
   //   return false;
 
+  // if ( dataMuon == emuMuon )
+  //   return false;
+
+  if ( not (dataMuon->hwEta() == emuMuon->hwEta()) )
+    return false;
+
+  cout << hex << setw(8) << setfill('0')
+       << "data word = " << dataMuon->dataword() << "\t emu word = " << emuMuon->dataword() << dec << endl; 
   cout << "data PT = " << dataMuon->hwPt() << "\t emu PT = " << emuMuon->hwPt() << endl;
   cout << "data PT2 = " << dataMuon->hwPtUnconstrained() << "\t emu PT2 = " << emuMuon->hwPtUnconstrained() << endl;
   cout << "data DXY = " << dataMuon->hwDXY() << "\t emu DXY = " << emuMuon->hwDXY() << endl;
+  cout << "data PHI = " << dataMuon->hwPhi() << "\t emu PHI = " << emuMuon->hwPhi() << endl;
+  cout << "data ETA = " << dataMuon->hwEta() << "\t emu ETA = " << emuMuon->hwEta() << endl;
+  cout << "data HF = " << dataMuon->hwHF() << "\t emu HF = " << emuMuon->hwHF() << endl;
+  cout << "data SIGN = " << dataMuon->hwSign() << "\t emu SIGN = " << emuMuon->hwSign() << endl;
+  cout << "data SIGNVALID = " << dataMuon->hwSignValid() << "\t emu SIGN = " << emuMuon->hwSignValid() << endl;
+  cout << "data QUAL = " << dataMuon->hwQual() << "\t emu QUAL = " << emuMuon->hwQual() << endl;
+  cout << "data LINK = " << dataMuon->link() << "\t emu LINK = " << emuMuon->link() << endl;
+  cout << "data IDX = " << dataMuon->muIdx() << "\t emu IDX = " << emuMuon->muIdx() << endl;
+  cout << "data PROC = " << dataMuon->processor() << "\t emu PROC = " << emuMuon->processor() << endl;
+  // cout << "data TF = " << dataMuon->trackFinderType() << "\t emu TF = " << emuMuon->trackFinderType() << endl;
+  auto data_trkadd = dataMuon->trackAddress();
+  auto emu_trkadd = emuMuon->trackAddress();
+  cout << "data TRKADD = ";
+  for (int i=0; i < 7; i++) cout << data_trkadd.at(i);
+  cout << "\t emu TRKADD = ";
+  for (int i=0; i < 7; i++) cout << emu_trkadd.at(i);
+  cout << endl;
 
   eventFound = true;
   return true;

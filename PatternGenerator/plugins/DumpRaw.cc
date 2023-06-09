@@ -56,6 +56,7 @@ namespace l1t {
     void endRun(edm::Run const&, edm::EventSetup const&) override{};
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
+    void printSixFrames(std::vector<std::string>&);
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<FEDRawDataCollection> fedData_;
@@ -115,6 +116,15 @@ namespace l1t {
   //
   // member functions
   //
+
+  
+  void DumpRaw::printSixFrames(std::vector<std::string>& _frames) {
+    using namespace std;
+    int frame_id = 0;
+    for (auto frame: _frames)
+      cout << "Frame " << setfill('0') << setw(4) << frame_id++ << " :" << hex << frame << dec << endl;
+    return;
+  }
 
   // ------------ method called to produce the data  ------------
   void DumpRaw::produce(edm::Event& event, const edm::EventSetup& setup) {
@@ -182,11 +192,12 @@ namespace l1t {
           payload = std::make_unique<MP7Payload>(start, end, legacy_mc);
         }
         //unsigned fw = payload->getAlgorithmFWVersion();
-        unsigned board = amc.blockHeader().getBoardID();
+        unsigned board = amc.blockHeader().getBoardID(); //1-12
         unsigned amc_no = amc.blockHeader().getAMCNumber();
-	std::cout << "----> Got new board " << board << " (amc:" << amc_no << ")" << std::endl;
+	std::cout << "----> Got new board " << board-1 << " (amc:" << amc_no << ")" << std::endl; //board in RegMuonCand 0-11
 
 	// kpanos
+	using namespace std;
 	int enabled_links[] = {0,1,2,3,4,5, 8,9,10,11,12,13, 16,17,18,19,20,21,22,23,24,25,26,27,28,29, 32,33,34,35};
 	std::vector<std::string> frames;
 	frames.resize(6,"");
@@ -196,82 +207,89 @@ namespace l1t {
         std::unique_ptr<Block> block;
         while ((block = payload->getBlock()).get()) { // loop links
 	  block->amc(amc.header());
-	  using namespace std;
 	  //
 	  auto link = block->header().getID()/2;
-	  cout << "RAW link:" << block->header().getID() << endl;
+	  cout << "NEXT link:" << (int)link << endl;
 
 	  for (int i_link=prev_link+1; i_link<72; i_link++) {
-	    cout << "making link " << i_link << endl;
 	    if ((int)link != i_link) { //fill default links
 	      if (std::find(std::begin(enabled_links), std::end(enabled_links), i_link) != std::end(enabled_links)) {
-		cout << "will write default link" << endl;
-		frames[0] += "00200800";
-		frames[1] += "00200800";
-		frames[2] += "00200800";
-		frames[3] += "00200800";
+		cout << ">> link " << i_link << " (default enabled append)" << endl;
+		frames[0] += " 1v00200800";
+		frames[1] += " 1v00200800";
+		frames[2] += " 1v00200800";
+		frames[3] += " 1v00200800";
+		frames[4] += " 1v00000000";
+		frames[5] += " 1v00000000";
 	      }
 	      else {
-		cout << "will write default link" << endl;
-		frames[0] += "00000000";
-		frames[1] += "00000000";
-		frames[2] += "00000000";
-		frames[3] += "00000000";
+		cout << ">> link " << i_link << " (default disabled append)" << endl;
+		frames[0] += " 0v00000000";
+		frames[1] += " 0v00000000";
+		frames[2] += " 0v00000000";
+		frames[3] += " 0v00000000";
+		frames[4] += " 0v00000000";
+		frames[5] += " 0v00000000";
 	      }
-	      frames[4] += "00000000";
-	      frames[5] += "00000000";
 	      prev_link = i_link; // t know where is stopped for case that last "link" is < 72
 	    }
-	    else if (i_link < 61) { //fill link in hand with data
-	      cout << "will write data link" << endl;
+	    else if (i_link < 61) { //fill input link in hand with data
+	      cout << ">> link " << i_link << " (data enabled append)" << endl;
+	      cout << "----------------------" << endl;
+	      for (auto word: block->payload()) cout << "RAW block " << hex << setw(8) << setfill('0') << word << dec << endl;
+	      cout << "----------------------" << endl;
 	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, true)) {  //Bx iteration
 		int bxNum = ibx.header().getBx();
+		if (bxNum != 0) continue;
 		//Print out this BxBlock if input links
-		if (bxNum == 0) {
-		  cout << "BX " << bxNum << "\t link: " << link << endl
-		       << hex;
-		  int iw = 0;
-		  for (auto word: ibx.payload()) {
-		    cout << setw(8) << setfill('0') << word << endl;
-		    stringstream hexstr;
-		    hexstr << hex << setw(8) << setfill('0') << word;
-		    cout << "hexstr" << iw << " " << hexstr.str() << endl;
-		    frames[iw] += hexstr.str();
-		    iw++;
-		  }
-		  cout << dec;
+		cout << "BX " << bxNum << "\t link: " << link << endl << hex;
+		int iw = 0;
+		for (auto word: ibx.payload()) {
+		  stringstream hexstr;
+		  hexstr << hex << setw(8) << setfill('0') << word;
+		  cout << "INPUT" << " word" << iw << " " << hexstr.str() << endl;
+		  frames[iw] += " 1v"+hexstr.str(); //link w/data, always enabled
+		  iw++;
 		}
+		cout << dec;
 	      }
 	      prev_link = i_link;
 	      break;
 	    }
 	    else { // this is for link 61 (the rest inks will be empty and filled by the loop below)
-	      cout << "link 61 (OUTPUT)" << endl;
-	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, true))
-		if (ibx.header().getBx() == 0)
-		  for (auto word: ibx.payload()) cout << hex << setw(8) << setfill('0') << word << dec << endl;
+	      cout << ">> link " << i_link << " (output)" << endl;
+	      cout << "----------------------" << endl;
+	      for (auto word: block->payload()) cout << "RAW block " << hex << setw(8) << setfill('0') << word << dec << endl;
+	      cout << "----------------------" << endl;
+	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, false)) {
+		if (ibx.header().getBx() != 0) continue;
+		for (auto word: ibx.payload()) cout << "OUTPUT " << hex << setw(8) << setfill('0') << word << dec << endl;
+		cout << endl;
+	      }
 	      break;
 	    }
-	  } // loop i_link	  
+	    this->printSixFrames(frames); //debug
+	  } // loop i_link
+	  cout << ">> to next link in FED" << endl;
 	} // loop unpacked links
 
 	// add the rest empty links
-	std::cout << "prev_link = " << prev_link << std::endl;
+	cout << "prev_link = " << prev_link << endl;
 	for (int i_link=prev_link+1; i_link<72; i_link++) {
-	  std::cout << "will write default link" << std::endl;
-	  frames[0] += "00000000";
-	  frames[1] += "00000000";
-	  frames[2] += "00000000";
-	  frames[3] += "00000000";
-	  frames[4] += "00000000";
-	  frames[5] += "00000000";
+	  cout << ">> link " << i_link << " (dummy disabled append)" << endl;
+	  frames[0] += " 0v00000000";
+	  frames[1] += " 0v00000000";
+	  frames[2] += " 0v00000000";
+	  frames[3] += " 0v00000000";
+	  frames[4] += " 0v00000000";
+	  frames[5] += " 0v00000000";
+	  //this->printSixFrames(frames); //debug
 	}
 
 	//// PRINT THE BLOCK ////////////////////////////////////////////////////////////////////////////////
 	using namespace std;
-	cout << "Printing 6 frames for the board " << (int)board << endl;
-	for (auto frame: frames)
-	  cout << "frame " << hex << frame << dec << endl;
+	cout << "Final 6 frames for the board " << (int)board << endl;
+	this->printSixFrames(frames);
       } // for board
 
 

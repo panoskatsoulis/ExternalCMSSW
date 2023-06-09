@@ -18,21 +18,21 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 import glob, os
 
 events = 100
-dataset = "/ExpressCosmics/Commissioning2021-Express-v1/FEVT"
-run = "341081"
-gTag = "112X_dataRun3_HLT_v3"
+dataset = "/Muon0/Run2023C-v1/RAW"
+run = "368423"
+gTag = "_dummy_"
 legacyTag = "BMTF2"
 kalmanTag = "BMTF"
-lumiBegin = "10"
-lumiEnd = "40"
+lumiBegin = "1"
+lumiEnd = "1000"
 
 
 #### SINGLE DAS query
 das_query = 'dasgoclient --query="file dataset='+dataset+' run='+run+'"'
 files = os.popen(das_query)
 files = cms.untracked.vstring('root://xrootd-cms.infn.it/'+_file.strip() for _file in files)
-print files
-print das_query
+print(files)
+print(das_query)
 
 ##### Multiple DAS queries to form the files vector
 # files1 = os.popen('dasgoclient --query="file dataset=/ZeroBias/Run2018D-v1/RAW run=320612"')
@@ -93,8 +93,8 @@ process.options = cms.untracked.PSet(
 # )
 
 # Global Tag
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, gTag, '')
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, gTag, '')
 
 # TFileService for output
 process.TFileService = cms.Service(
@@ -125,7 +125,7 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 # Configure Emulator's masks
 masked = '111111111111'
 no = '000000000000'
-process.fakeBmtfParams.mask_phtf_st1 = cms.vstring(no, no, no, no, no, no, no)
+process.fakeBmtfParams.mask_phtf_st1 = cms.vstring(masked, no, no, no, no, no, masked)
 process.fakeBmtfParams.mask_phtf_st2 = cms.vstring(no, no, no, no, no, no, no)
 process.fakeBmtfParams.mask_phtf_st3 = cms.vstring(no, no, no, no, no, no, no)
 process.fakeBmtfParams.mask_phtf_st4 = cms.vstring(no, no, no, no, no, no, no)
