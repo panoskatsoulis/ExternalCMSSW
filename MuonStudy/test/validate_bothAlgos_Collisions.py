@@ -12,23 +12,23 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #########  VarParsing  ######################
 import FWCore.ParameterSet.VarParsing as VarParsing
 args = VarParsing.VarParsing("analysis")
-args.register("dataset", "/ExpressPhysics/Run2018D-Express-v1/FEVT",
+args.register("dataset", "/Muon0/Run2023C-v1/RAW",
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "Dataset for the DAS query.")
-args.register("gTag", "101X_dataRun2_HLT_v7",
+args.register("gTag", "_dummy_",
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "Global Tag to be used.")
-args.register("sysTag", "L1TMuonBarrelParams_Stage2v1_hlt",
+args.register("sysTag", "L1TMuonBarrelParams_Stage2v1_hlt", #L1TMuonBarrelParams_Stage2v1_2018_mc
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "System Tag to be used (instead of Global Tag).")
-args.register("legacyTag", "BMTF",
+args.register("legacyTag", "BMTF2",
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "Collection to used by the Validator for the Legacy Algo. ('BMTF': Triggering | 'BMTF2': Secondary)")
-args.register("kalmanTag", "BMTF2",
+args.register("kalmanTag", "BMTF",
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "Collection to used by the Validator for the Kalman Algo. ('BMTF': Triggering | 'BMTF2': Secondary)")
@@ -36,11 +36,11 @@ args.register("queryType", "single",
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "DAS query type. ('single': one run | 'multiple': more runs | 'file:...': load local file)")
-args.register("events", 20000,
+args.register("events", 3000,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.int,
               "Number of events to run over.")
-args.register("run", 325113,
+args.register("run", 368229,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.int,
               "Run to process (for single queries).")
@@ -64,18 +64,18 @@ args.register("siteQuery", 'all',
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.string,
               "Use this site for the DAS query. (only single queries)")
-args.register("addFakeParams", True,
+args.register("addFakeParams", False,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.bool,
               "This bool adds in the process the bmtfFakeParams.")
-args.register("getFromCondDB", False,
+args.register("getFromCondDB", True,
               VarParsing.VarParsing.multiplicity.singleton,
               VarParsing.VarParsing.varType.bool,
               "This bool indicates that the CondDB will be used.")
 args.parseArguments()
 
 if args.addFakeParams and args.getFromCondDB:
-    print "The L1TMuonBarrelRcd can be either fetched form CondDB or from the fakeParams script."
+    print("The L1TMuonBarrelRcd can be either fetched form CondDB or from the fakeParams script.")
     quit(1)
 
 #########  INPUT FILES  #####################
@@ -129,7 +129,7 @@ elif query_type == "multiple" : #### Multiple DAS queries to form the files vect
         quit(1)
     for run_i in range(run1, run2+1):
         das_query = 'dasgoclient --query="file dataset='+dataset+' run='+str(run_i)+'"'
-        print ("Querying files for the Run " + str(run_i) + '...')
+        print("Querying files for the Run " + str(run_i) + '...')
         query_out = os.popen(das_query)
         files += cms.untracked.vstring('root://xrootd-cms.infn.it/'+_file.strip() for _file in query_out)
         das_queries.append(das_query)
@@ -142,9 +142,9 @@ else :
     print("query_type: "+query_type)
     exit(1)
 
-print files
-print ("DAS queries performed:")
-print das_queries
+print(files)
+print("DAS queries performed:")
+print(das_queries)
 
 process.source = cms.Source (
     #"NewEventStreamFileReader",
@@ -173,7 +173,7 @@ process.options = cms.untracked.PSet(
 
 if args.getFromCondDB:
     from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
+    CondDB.connect = cms.string("frontier://PromptProd/cms_conditions")
     process.l1conddb = cms.ESSource("PoolDBESSource", CondDB,
                                     toGet   = cms.VPSet(
                                         cms.PSet(
