@@ -212,6 +212,22 @@ namespace l1t {
 	  cout << "NEXT link:" << (int)link << endl;
 
 	  for (int i_link=prev_link+1; i_link<72; i_link++) {
+
+	    // output links
+	    if (i_link == 61) { // this is for output link (just printing, this link and the rest will be filled by the loop below)
+	      cout << ">> link " << i_link << " (output)" << endl;
+	      cout << "----------------------" << endl;
+	      for (auto word: block->payload()) cout << "RAW block " << hex << setw(8) << setfill('0') << word << dec << endl;
+	      cout << "----------------------" << endl;
+	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, false)) {
+		if (ibx.header().getBx() != 0) continue;
+		for (auto word: ibx.payload()) cout << "OUTPUT " << hex << setw(8) << setfill('0') << word << dec << endl;
+		cout << endl;
+	      }
+	      break;
+	    }
+
+	    // input links
 	    if ((int)link != i_link) { //fill default links
 	      if (std::find(std::begin(enabled_links), std::end(enabled_links), i_link) != std::end(enabled_links)) {
 		cout << ">> link " << i_link << " (default enabled append)" << endl;
@@ -231,18 +247,19 @@ namespace l1t {
 		frames[4] += " 0v00000000";
 		frames[5] += " 0v00000000";
 	      }
-	      prev_link = i_link; // t know where is stopped for case that last "link" is < 72
 	    }
-	    else if (i_link < 61) { //fill input link in hand with data
-	      cout << ">> link " << i_link << " (data enabled append)" << endl;
+	    else { //fill input link in hand with data
 	      cout << "----------------------" << endl;
 	      for (auto word: block->payload()) cout << "RAW block " << hex << setw(8) << setfill('0') << word << dec << endl;
 	      cout << "----------------------" << endl;
+	      bool bxesNonZero(true);
 	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, true)) {  //Bx iteration
 		int bxNum = ibx.header().getBx();
+		cout << "BX=" << bxNum << endl;
 		if (bxNum != 0) continue;
+		bxesNonZero = false;
 		//Print out this BxBlock if input links
-		cout << "BX " << bxNum << "\t link: " << link << endl << hex;
+		cout << ">> link " << i_link << " (data enabled append)" << endl;
 		int iw = 0;
 		for (auto word: ibx.payload()) {
 		  stringstream hexstr;
@@ -252,23 +269,20 @@ namespace l1t {
 		  iw++;
 		}
 		cout << dec;
+	      } //bx
+	      if (bxesNonZero) {
+		cout << ">> link " << i_link << " (default enabled append)" << endl;
+		frames[0] += " 1v00200800";
+		frames[1] += " 1v00200800";
+		frames[2] += " 1v00200800";
+		frames[3] += " 1v00200800";
+		frames[4] += " 1v00000000";
+		frames[5] += " 1v00000000";
 	      }
-	      prev_link = i_link;
-	      break;
 	    }
-	    else { // this is for link 61 (the rest inks will be empty and filled by the loop below)
-	      cout << ">> link " << i_link << " (output)" << endl;
-	      cout << "----------------------" << endl;
-	      for (auto word: block->payload()) cout << "RAW block " << hex << setw(8) << setfill('0') << word << dec << endl;
-	      cout << "----------------------" << endl;
-	      for (const auto& ibx : block->getBxBlocks((unsigned int)6, false)) {
-		if (ibx.header().getBx() != 0) continue;
-		for (auto word: ibx.payload()) cout << "OUTPUT " << hex << setw(8) << setfill('0') << word << dec << endl;
-		cout << endl;
-	      }
-	      break;
-	    }
-	    this->printSixFrames(frames); //debug
+	    //this->printSixFrames(frames); //debug
+	    prev_link = i_link;
+	    if ((int)link == i_link) break;
 	  } // loop i_link
 	  cout << ">> to next link in FED" << endl;
 	} // loop unpacked links
@@ -287,7 +301,6 @@ namespace l1t {
 	}
 
 	//// PRINT THE BLOCK ////////////////////////////////////////////////////////////////////////////////
-	using namespace std;
 	cout << "Final 6 frames for the board " << (int)board << endl;
 	this->printSixFrames(frames);
       } // for board
