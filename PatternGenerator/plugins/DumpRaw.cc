@@ -301,7 +301,7 @@ namespace l1t {
 	}
 
 	//// PRINT THE BLOCK ////////////////////////////////////////////////////////////////////////////////
-	cout << "Final 6 frames for the board " << (int)board << endl;
+	cout << "Final 6 frames for the board " << (int)board-1 << endl;
 	this->printSixFrames(frames);
       } // for board
 

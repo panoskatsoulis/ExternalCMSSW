@@ -10,16 +10,17 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 #Setup FWK for multithreaded - The Validator is not thread-safe
-#process.options = cms.untracked.PSet()
-#process.options.numberOfThreads=cms.untracked.uint32(4)
-#process.options.numberOfStreams=cms.untracked.uint32(0)
+process.options = cms.untracked.PSet()
+# process.options.numberOfThreads=cms.untracked.uint32(8)
+# process.options.numberOfStreams=cms.untracked.uint32(0)
 
 #########  INPUT FILES  #####################
 import glob, os
 
-events = 100
+events = 100000
+print_freq = 200
 dataset = "/Muon0/Run2023C-v1/RAW"
-run = "368423"
+run = "368670"
 gTag = "_dummy_"
 legacyTag = "BMTF2"
 kalmanTag = "BMTF"
@@ -68,7 +69,7 @@ process.maxEvents = cms.untracked.PSet(
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(print_freq)
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
